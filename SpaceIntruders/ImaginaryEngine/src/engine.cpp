@@ -1,7 +1,267 @@
+#define GLEW_STATIC
+
 #include "tiny_obj_loader.cc"
 #include "engine.hpp"
+#include <GL/glew.h>
 #include <SDL_version.h>
 #include <SDL.h>
+
+class Render {
+public:
+	explicit Render();
+	Render(SDL_Renderer*);
+	void drawLineByPoints(int, int, int, int);
+	void drawLineByPoints(Point2D, Point2D);
+	void drawObj(std::string, int, int);
+	void fillTriangle(Triangle*);
+private:	
+	SDL_Renderer* renderer;
+};
+
+Render::Render() 
+{
+	renderer = nullptr;
+}
+
+Render::Render(SDL_Renderer* r) 
+{
+	renderer = r;
+}
+
+void Render::drawLineByPoints(int x0, int y0, int x1, int y1)
+{
+	bool steep = false;
+
+	if (std::abs(x0 - x1) < std::abs(y0 - y1))
+	{
+		std::swap(x0, y0);
+		std::swap(x1, y1);
+		steep = true;
+	}
+
+	if (x0 > x1)
+	{
+		std::swap(x0, x1);
+		std::swap(y0, y1);
+	}
+
+	int dx = x1 - x0;
+	int dy = y1 - y0;
+	int derror2 = std::abs(dy) * 2;
+	int error2 = 0;
+	int y = y0;
+
+	for (int x = x0; x <= x1; x++)
+	{
+		if (steep)
+		{
+			SDL_RenderDrawPoint(renderer, y, x);
+		}
+		else
+		{
+			SDL_RenderDrawPoint(renderer, x, y);
+		}
+		error2 += derror2;
+
+		if (error2 > dx)
+		{
+			y += (y1 > y0 ? 1 : -1);
+			error2 -= dx * 2;
+		}
+	}
+}
+
+void Render::drawLineByPoints(Point2D a, Point2D b)
+{
+	bool steep = false;
+
+	if (std::abs(a.x - b.x) < std::abs(a.y - b.y))
+	{
+		std::swap(a.x, a.y);
+		std::swap(b.x, b.y);
+		steep = true;
+	}
+
+	if (a.x > b.x)
+	{
+		std::swap(a.x, b.x);
+		std::swap(a.y, b.y);
+	}
+
+	int dx = b.x - a.x;
+	int dy = b.y - a.y;
+	int derror2 = std::abs(dy) * 2;
+	int error2 = 0;
+	int y = a.y;
+
+	for (int x = a.x; x <= b.x; x++)
+	{
+		if (steep)
+		{
+			SDL_RenderDrawPoint(renderer, y, x);
+		}
+		else
+		{
+			SDL_RenderDrawPoint(renderer, x, y);
+		}
+		error2 += derror2;
+
+		if (error2 > dx)
+		{
+			y += (b.y > a.y ? 1 : -1);
+			error2 -= dx * 2;
+		}
+	}
+}
+
+void Render::fillTriangle(Triangle* abc)
+{
+	if (abc->getFirst().y > abc->getSecond().y)
+	{
+		Point2D temp = abc->getFirst();
+		abc->setFirst(abc->getSecond());
+		abc->setSecond(temp);
+	}
+	if (abc->getFirst().y > abc->getThird().y)
+	{
+		Point2D temp = abc->getFirst();
+		abc->setFirst(abc->getThird());
+		abc->setThird(temp);
+	}
+	if (abc->getSecond().y > abc->getThird().y)
+	{
+		Point2D temp = abc->getSecond();
+		abc->setSecond(abc->getThird());
+		abc->setThird(temp);
+	}
+
+	int total_height = abc->getThird().y - abc->getFirst().y;
+
+	for (int i = 0; i < total_height; i++)
+	{
+		int diff = abc->getSecond().y - abc->getFirst().y;
+		bool second_half = i > diff || abc->getFirst().y == abc->getSecond().y;
+		int segment_height = second_half ? abc->getThird().y - abc->getSecond().y : diff;
+		double alpha = i * 1. / total_height;
+		double beta = (i - (second_half ? diff : 0)) * 1. / segment_height;
+		
+		Point2D A =  Point2D{ abc->getFirst().x + (int)(alpha * (abc->getThird().x - abc->getFirst().x)), 
+						abc->getFirst().y + (int)(alpha * (abc->getThird().y - abc->getFirst().y)) };
+
+		Point2D B = second_half ? Point2D{ abc->getSecond().x + (int)(beta * (abc->getThird().x - abc->getSecond().x)), 
+									abc->getSecond().y + (int)(beta * (abc->getThird().y - abc->getSecond().y)) } :
+								Point2D{ abc->getFirst().x + (int)(beta * (abc->getSecond().x - abc->getFirst().x)), 
+									abc->getFirst().y + (int)(beta * (abc->getSecond().y - abc->getFirst().y)) };
+		if (A.x > B.x)
+		{
+			Point2D temp = A;
+			A = B;
+			B = temp;
+		}
+		for (int j = A.x; j <= B.x; j++)
+		{
+			SDL_RenderDrawPoint(renderer, j, abc->getFirst().y + i);
+		}
+	}
+}
+
+void Render::drawObj(std::string inputfile, int height, int width) 
+{
+	tinyobj::ObjReaderConfig reader_config;
+	reader_config.mtl_search_path = "./"; // Path to material files
+
+	tinyobj::ObjReader reader;
+
+	if (!reader.ParseFromFile(inputfile, reader_config))
+	{
+		if (!reader.Error().empty())
+		{
+			std::cerr << "TinyObjReader: " << reader.Error();
+		}
+		exit(1);
+	}
+
+	if (!reader.Warning().empty())
+	{
+		std::cout << "TinyObjReader: " << reader.Warning();
+	}
+
+	auto& attrib = reader.GetAttrib();
+	auto& shapes = reader.GetShapes();
+	//auto& materials = reader.GetMaterials();
+
+	SDL_SetRenderDrawColor(renderer, 0xFF, 0x00, 0xFF, 0x00);
+	// Loop over shapes
+	for (size_t s = 0; s < shapes.size(); s++)
+	{
+		// Loop over faces(polygon)
+		size_t index_offset = 0;
+		for (size_t f = 0; f < shapes[s].mesh.num_face_vertices.size(); f++)
+		{
+			size_t fv = size_t(shapes[s].mesh.num_face_vertices[f]);
+			Triangle abc;
+
+			// Loop over vertices in the face.
+			for (size_t v = 0; v < fv; v++)
+			{
+				// access to vertex
+				tinyobj::index_t idx_1 = shapes[s].mesh.indices[index_offset + v];
+				tinyobj::real_t vx_1 = attrib.vertices[3 * size_t(idx_1.vertex_index) + 0];
+				tinyobj::real_t vy_1 = attrib.vertices[3 * size_t(idx_1.vertex_index) + 1];
+
+				tinyobj::index_t idx_2 = shapes[s].mesh.indices[index_offset + (v + 1) % 3];
+				tinyobj::real_t vx_2 = attrib.vertices[3 * size_t(idx_2.vertex_index) + 0];
+				tinyobj::real_t vy_2 = attrib.vertices[3 * size_t(idx_2.vertex_index) + 1];
+
+				int x0 = 200 + (vx_1 + 1.) * width / 2;
+				int y0 = (vy_1 + 1.) * height / 2;
+				int x1 = 200 + (vx_2 + 1.) * width / 2;
+				int y1 = (vy_2 + 1.) * height / 2;
+
+				Point2D first = { x0, height - y0 };
+				Point2D second = { x1, height - y1 };
+
+				if (v == 1)
+				{
+					abc.setFirst(first);
+				}
+				if (v == 2)
+				{
+					abc.setSecond(first);
+					abc.setThird(second);
+					SDL_SetRenderDrawColor(renderer, rand() % 255, rand() % 255, rand() % 255, 0x00);
+					fillTriangle(&abc);
+				}
+				//drawLineByPoint2Ds(&first, &second);
+
+				//tinyobj::real_t vz = attrib.vertices[3 * size_t(idx.vertex_index) + 2];
+
+				// Check if `normal_index` is zero or positive. negative = no normal data
+				/*if (idx.normal_index >= 0) {
+					tinyobj::real_t nx = attrib.normals[3 * size_t(idx.normal_index) + 0];
+					tinyobj::real_t ny = attrib.normals[3 * size_t(idx.normal_index) + 1];
+					tinyobj::real_t nz = attrib.normals[3 * size_t(idx.normal_index) + 2];
+				}
+
+				// Check if `texcoord_index` is zero or positive. negative = no texcoord data
+				if (idx.texcoord_index >= 0) {
+					tinyobj::real_t tx = attrib.texcoords[2 * size_t(idx.texcoord_index) + 0];
+					tinyobj::real_t ty = attrib.texcoords[2 * size_t(idx.texcoord_index) + 1];
+				}
+				*/
+				// Optional: vertex colors
+				// tinyobj::real_t red   = attrib.colors[3*size_t(idx.vertex_index)+0];
+				// tinyobj::real_t green = attrib.colors[3*size_t(idx.vertex_index)+1];
+				// tinyobj::real_t blue  = attrib.colors[3*size_t(idx.vertex_index)+2];
+			}
+			index_offset += fv;
+
+			// per-face material
+			//shapes[s].mesh.material_ids[f];
+		}
+	}
+	SDL_RenderPresent(renderer);
+}
 
 struct Engine::Pimpl
 {
@@ -30,11 +290,27 @@ void Engine::init()
 
 void Engine::init(std::string name_window)
 {
-	//SDL_Surface* screen_surface = NULL;
-	//SDL_Window* window = NULL;
+	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+	
+	//Uint32 windowsFlags = SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN;
+	
 	_pimpl->window = SDL_CreateWindow(name_window.c_str(), SDL_WINDOWPOS_UNDEFINED,
 		SDL_WINDOWPOS_UNDEFINED, 1200, 800,
-		SDL_WINDOW_SHOWN);
+		SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL);
+	//glewExperimental = GL_TRUE;
+	auto context = SDL_GL_CreateContext(_pimpl->window);
+	GLenum res = glewInit();
+	if (res != GLEW_OK)
+	{
+		throw std::runtime_error("Glew error");
+	}
+	//SDL_Surface* screen_surface = NULL;
+	//SDL_Window* window = NULL;
+	
 	_pimpl->renderer = SDL_CreateRenderer(_pimpl->window, -1, SDL_RENDERER_ACCELERATED);
 }
 
@@ -51,224 +327,59 @@ void Engine::update()
 	{
 		_pimpl->isActive = false;
 	}
+//	glClearColor(1, 0, 1, 1);
+//	glClear(GL_COLOR_BUFFER_BIT);
+//	SDL_GL_SwapWindow(_pimpl->window);
 }
 
-void Engine::drawObj(const std::string inputfile, int width, int height)
+void Engine::drawObj(std::string inputfile, int h, int w)
 {
-	tinyobj::ObjReaderConfig reader_config;
-	reader_config.mtl_search_path = "./"; // Path to material files
-
-	tinyobj::ObjReader reader;
-
-	if (!reader.ParseFromFile(inputfile, reader_config)) 
-	{
-		if (!reader.Error().empty()) 
-		{
-			std::cerr << "TinyObjReader: " << reader.Error();
-		}
-		exit(1);
-	}
-
-	if (!reader.Warning().empty())
-	{
-		std::cout << "TinyObjReader: " << reader.Warning();
-	}
-
-	auto& attrib = reader.GetAttrib();
-	auto& shapes = reader.GetShapes();
-	//auto& materials = reader.GetMaterials();
-
-	SDL_SetRenderDrawColor(_pimpl->renderer, 0xFF, 0x00, 0xFF, 0x00);
-	// Loop over shapes
-	for (size_t s = 0; s < shapes.size(); s++)
-	{
-		// Loop over faces(polygon)
-		size_t index_offset = 0;
-		for (size_t f = 0; f < shapes[s].mesh.num_face_vertices.size(); f++)
-		{
-			size_t fv = size_t(shapes[s].mesh.num_face_vertices[f]);
-
-			// Loop over vertices in the face.
-			for (size_t v = 0; v < fv; v++)
-			{
-				// access to vertex
-				tinyobj::index_t idx_1 = shapes[s].mesh.indices[index_offset + v];
-				tinyobj::real_t vx_1 = attrib.vertices[3 * size_t(idx_1.vertex_index) + 0];
-				tinyobj::real_t vy_1 = attrib.vertices[3 * size_t(idx_1.vertex_index) + 1];
-				
-				tinyobj::index_t idx_2 = shapes[s].mesh.indices[index_offset + (v + 1) % 3];
-				tinyobj::real_t vx_2 = attrib.vertices[3 * size_t(idx_2.vertex_index) + 0];
-				tinyobj::real_t vy_2 = attrib.vertices[3 * size_t(idx_2.vertex_index) + 1];
-
-				int x0 = 200 + (vx_1 + 1.) * width / 2;
-				int y0 = (vy_1 + 1.) * height / 2;
-				int x1 = 200 + (vx_2 + 1.) * width / 2;
-				int y1 = (vy_2 + 1.) * height / 2;
-
-				Point2D first = { x0, height - y0 };
-				Point2D second = { x1, height - y1 };
-				
-				drawLineByPoints(&first, &second);
-
-				//tinyobj::real_t vz = attrib.vertices[3 * size_t(idx.vertex_index) + 2];
-
-				// Check if `normal_index` is zero or positive. negative = no normal data
-				/*if (idx.normal_index >= 0) {
-					tinyobj::real_t nx = attrib.normals[3 * size_t(idx.normal_index) + 0];
-					tinyobj::real_t ny = attrib.normals[3 * size_t(idx.normal_index) + 1];
-					tinyobj::real_t nz = attrib.normals[3 * size_t(idx.normal_index) + 2];
-				}
-
-				// Check if `texcoord_index` is zero or positive. negative = no texcoord data
-				if (idx.texcoord_index >= 0) {
-					tinyobj::real_t tx = attrib.texcoords[2 * size_t(idx.texcoord_index) + 0];
-					tinyobj::real_t ty = attrib.texcoords[2 * size_t(idx.texcoord_index) + 1];
-				}
-				*/
-				// Optional: vertex colors
-				// tinyobj::real_t red   = attrib.colors[3*size_t(idx.vertex_index)+0];
-				// tinyobj::real_t green = attrib.colors[3*size_t(idx.vertex_index)+1];
-				// tinyobj::real_t blue  = attrib.colors[3*size_t(idx.vertex_index)+2];
-			}
-			index_offset += fv;
-
-			// per-face material
-			//shapes[s].mesh.material_ids[f];
-		}
-	}
-	SDL_RenderPresent(_pimpl->renderer);
-}
-
-void Engine::drawLineByPoints(int x0, int y0, int x1, int y1) 
-{	
-	bool steep = false;
-	
-	if (std::abs(x0 - x1) < std::abs(y0 - y1))
-	{
-		std::swap(x0, y0);
-		std::swap(x1, y1);
-		steep = true;
-	}
-
-	if (x0 > x1)
-	{
-		std::swap(x0, x1);
-		std::swap(y0, y1);
-	}
-
-	int dx = x1 - x0;
-	int dy = y1 - y0;
-	int derror2 = std::abs(dy) * 2;
-	int error2 = 0;
-	int y = y0;
-	
-	for (int x = x0; x <= x1; x++)
-	{
-		if (steep) 
-		{
-			SDL_RenderDrawPoint(_pimpl->renderer, y, x);
-		}
-		else 
-		{
-			SDL_RenderDrawPoint(_pimpl->renderer, x, y);
-		}
-		error2 += derror2;
-
-		if (error2 > dx) 
-		{
-			y += (y1 > y0 ? 1 : -1);
-			error2 -= dx * 2;
-		}
-	}
-}
-
-void Engine::drawLineByPoints(Point2D* a, Point2D* b)
-{
-	bool steep = false;
-
-	if (std::abs((*a).getX() - (*b).getX()) < std::abs((*a).getY() - (*b).getY()))
-	{
-		int temp = (*a).getX();
-		(*a).setX((*a).getY());
-		(*a).setY(temp);
-		temp = (*b).getX();
-		(*b).setX((*b).getY());
-		(*b).setY(temp);
-		steep = true;
-	}
-
-	if ((*a).getX() > (*b).getX())
-	{
-		int temp = (*a).getX();
-		(*a).setX((*b).getX());
-		(*b).setX(temp);
-		temp = (*a).getY();
-		(*a).setY((*b).getY());
-		(*b).setY(temp);
-	}
-
-	int dx = (*b).getX() - (*a).getX();
-	int dy = (*b).getY() - (*a).getY();
-	int derror2 = std::abs(dy) * 2;
-	int error2 = 0;
-	int y = (*a).getY();
-
-	for (int x = (*a).getX(); x <= (*b).getX(); x++)
-	{
-		if (steep)
-		{
-			SDL_RenderDrawPoint(_pimpl->renderer, y, x);
-		}
-		else
-		{
-			SDL_RenderDrawPoint(_pimpl->renderer, x, y);
-		}
-		error2 += derror2;
-
-		if (error2 > dx)
-		{
-			y += ((*b).getY() > (*a).getY() ? 1 : -1);
-			error2 -= dx * 2;
-		}
-	}
+	Render r = Render(_pimpl->renderer);
+	r.drawObj(inputfile, h, w);
 }
 
 Engine::~Engine() = default;
 
-Point2D::Point2D()
+Triangle::Triangle()
 {
-	x = 0;
-	y = 0;
+	first = { 0, 0 };
+	second = { 0, 0 };
+	third = { 0, 0 };
 }
 
-Point2D::Point2D(int a)
+Triangle::Triangle(Point2D a, Point2D b, Point2D c)
 {
-	x = a;
-	y = 0;
+	first = a;
+	second = b;
+	third = c;
 }
 
-Point2D::Point2D(int a, int b)
+Point2D Triangle::getFirst()
 {
-	x = a;
-	y = b;
+	return this->first;
 }
 
-int Point2D::getX()
+Point2D Triangle::getSecond()
 {
-	return this->x;
+	return this->second;
 }
 
-void Point2D::setX(int a)
+Point2D Triangle::getThird()
 {
-	this->x = a;
+	return this->third;
 }
 
-int Point2D::getY()
+void Triangle::setFirst(Point2D a)
 {
-	return this->y;
+	this->first = a;
 }
 
-void Point2D::setY(int b)
+void Triangle::setSecond(Point2D a)
 {
-	this->y = b;
+	this->second = a;
+}
+
+void Triangle::setThird(Point2D a)
+{
+	this->third = a;
 }

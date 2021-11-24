@@ -1,20 +1,29 @@
-#include <cstdio>
+#pragma once
+
 #include <string>
 #include <memory>
 #include <iostream>
 
-class Point2D {
-public:
-	explicit Point2D();
-	Point2D(int);
-	Point2D(int, int);
-	int getX();
-	int getY();
-	void setX(int);
-	void setY(int);
-private:
+struct Point2D
+{
 	int x;
 	int y;
+};
+
+class Triangle {
+public:
+	explicit Triangle();
+	Triangle(Point2D, Point2D, Point2D);
+	Point2D getFirst();
+	Point2D getSecond();
+	Point2D getThird();
+	void setFirst(Point2D);
+	void setSecond(Point2D);
+	void setThird(Point2D);
+private:
+	Point2D first;
+	Point2D second;
+	Point2D third;
 };
 
 class Engine {
@@ -26,8 +35,6 @@ public:
 	void update();
 	bool isActive();
 	void drawObj(const std::string, int, int);
-	void drawLineByPoints(int, int, int, int);
-	void drawLineByPoints(Point2D*, Point2D*);
 private:
 	struct Pimpl;
 	std::unique_ptr<Pimpl> _pimpl;

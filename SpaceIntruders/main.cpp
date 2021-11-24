@@ -7,7 +7,6 @@ using namespace std;
 int main()
 {
 	Engine engine{};
-	engine.init();
 	engine.init("Mace Windows");
 	const std::string inputfile = "../../../../SpaceIntruders/ImaginaryEngine/src/african_head.obj";
 	engine.drawObj(inputfile, 800, 800);
