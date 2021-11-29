@@ -213,10 +213,10 @@ void Render::drawObj(std::string inputfile, int height, int width)
 				tinyobj::real_t vx_2 = attrib.vertices[3 * size_t(idx_2.vertex_index) + 0];
 				tinyobj::real_t vy_2 = attrib.vertices[3 * size_t(idx_2.vertex_index) + 1];
 
-				int x0 = 200 + (vx_1 + 1.) * width / 2;
-				int y0 = (vy_1 + 1.) * height / 2;
-				int x1 = 200 + (vx_2 + 1.) * width / 2;
-				int y1 = (vy_2 + 1.) * height / 2;
+				int x0 = static_cast <int>(200 + (vx_1 + 1.) * width / 2);
+				int y0 = static_cast <int>((vy_1 + 1.) * height / 2);
+				int x1 = static_cast <int>(200 + (vx_2 + 1.) * width / 2);
+				int y1 = static_cast <int>((vy_2 + 1.) * height / 2);
 
 				Point2D first = { x0, height - y0 };
 				Point2D second = { x1, height - y1 };
@@ -288,6 +288,51 @@ void Engine::init()
 	printf("SDL version : %d.%d.%d", version.major, version.minor, version.patch);
 }
 
+GLuint _VAO;
+GLuint _uScreenSize;
+GLuint _program;
+
+void LoadShaderFromFile(std::string file_path, GLuint& _Shader)
+{
+	std::ifstream shader(file_path);
+	std::string a = file_path.substr(file_path.length() - 5, file_path.length());
+	if (!strcmp(a.c_str(), ".vert") || !strcmp(a.c_str(), ".frag"))
+	{
+		std::string str_shader, line;
+		while (getline(shader, line))
+		{
+			str_shader += line + "\n";
+		}
+		shader.close();
+		
+		if (!strcmp(a.c_str(), ".vert"))
+		{
+			_Shader = glCreateShader(GL_VERTEX_SHADER);
+		}
+		else if (!strcmp(a.c_str(), ".frag"))
+		{
+			_Shader = glCreateShader(GL_FRAGMENT_SHADER);
+		}
+		const char* shader_c_str = str_shader.c_str();
+		glShaderSource(_Shader, 1, &shader_c_str, nullptr);
+		glCompileShader(_Shader);
+
+		GLint success;
+		GLchar infoLog[512];
+		glGetShaderiv(_Shader, GL_COMPILE_STATUS, &success);
+
+		if (!success)
+		{
+			glGetShaderInfoLog(_Shader, 512, nullptr, infoLog);
+			std::cerr << "ERROR::SHADER::COMPILATION_FAILED " << str_shader << "\n" << infoLog << std::endl;
+		}
+	}
+	else
+	{
+		std::cerr << "Filename extension must be .vert or .frag" << std::endl;
+	}
+}
+
 void Engine::init(std::string name_window)
 {
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
@@ -303,15 +348,82 @@ void Engine::init(std::string name_window)
 		SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL);
 	//glewExperimental = GL_TRUE;
 	auto context = SDL_GL_CreateContext(_pimpl->window);
+
 	GLenum res = glewInit();
 	if (res != GLEW_OK)
 	{
 		throw std::runtime_error("Glew error");
 	}
-	//SDL_Surface* screen_surface = NULL;
-	//SDL_Window* window = NULL;
-	
+
 	_pimpl->renderer = SDL_CreateRenderer(_pimpl->window, -1, SDL_RENDERER_ACCELERATED);
+
+	struct Vertex 
+	{
+		float x;
+		float y;
+		float r;
+		float g;
+		float b;
+	};
+
+	struct VertexTriangle
+	{
+		Vertex arr[3];
+	};
+
+	VertexTriangle t{ 200, 200, 1.0, 1.0, 0.0, 400, 500, 1.0, 0.0, 1.0, 600, 300, 0.0, 1.0, 1.0 };
+	//glVertexAttribPointer(номер поля, количество компонент, тип, 
+	//нормализация(обрезка значения от -1 до 1), страйд(расстояние между двумя элементами массива), смещение от начала структуры);
+	
+	GLuint _VBO, _IBO;
+	uint32_t indexes[3] = { 0, 1, 2 };
+	glGenVertexArrays(1, &_VAO);
+	glBindVertexArray(_VAO);
+	CheckForErrors("engine.cpp", 382);
+
+	glGenBuffers(1, &_VBO);
+	glBindBuffer(GL_ARRAY_BUFFER, _VBO);
+	glBufferData(GL_ARRAY_BUFFER, 3 * sizeof(Vertex), &t, GL_STATIC_DRAW);
+	CheckForErrors("engine.cpp", 387);
+
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void*>(offsetof(Vertex, x)));
+	CheckForErrors("engine.cpp", 391);
+
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(2 * sizeof(float)));
+	CheckForErrors("engine.cpp", 395);
+
+	glGenBuffers(1, &_IBO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _IBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indexes), indexes, GL_STATIC_DRAW);
+	CheckForErrors("engine.cpp", 400);
+
+	GLuint _vertexShader, _fragmentShader;
+	LoadShaderFromFile("../../../../SpaceIntruders/ImaginaryEngine/src/shader_vert.vert", _vertexShader);
+	LoadShaderFromFile("../../../../SpaceIntruders/ImaginaryEngine/src/shader_frag.frag", _fragmentShader);
+	
+	_program = glCreateProgram();
+
+	glAttachShader(_program, _vertexShader);
+	glAttachShader(_program, _fragmentShader);
+	glLinkProgram(_program);
+
+	GLint success;
+	GLchar infoLog[512];
+
+	glGetProgramiv(_program, GL_LINK_STATUS, &success);
+	if (!success)
+	{
+		glGetProgramInfoLog(_program, 512, nullptr, infoLog);
+		std::cerr << "ERROR::SHADER::LINKING_FAILED\n" << infoLog << std::endl;
+	}
+
+	glUseProgram(_program);
+	_uScreenSize = glGetUniformLocation(_program, "screenSize");
+	
+	//SDL_Surface* screen_surface = NULL;
+	//SDL_Window* window = NULL;	
 }
 
 bool Engine::isActive()
@@ -327,15 +439,52 @@ void Engine::update()
 	{
 		_pimpl->isActive = false;
 	}
-//	glClearColor(1, 0, 1, 1);
-//	glClear(GL_COLOR_BUFFER_BIT);
-//	SDL_GL_SwapWindow(_pimpl->window);
+
+	glClearColor(1, 0, 0, 1);
+	glClear(GL_COLOR_BUFFER_BIT);
+	
+	glUseProgram(_program);
+	glUniform2f(_uScreenSize, 800, 800);
+	
+	glBindVertexArray(_VAO);
+	glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
+	
+	SDL_GL_SwapWindow(_pimpl->window);
 }
 
 void Engine::drawObj(std::string inputfile, int h, int w)
 {
 	Render r = Render(_pimpl->renderer);
 	r.drawObj(inputfile, h, w);
+}
+
+void Engine::CheckForErrors(std::string file, int line)
+{
+	GLenum err(glGetError());
+
+	while (err != GL_NO_ERROR)
+	{
+		std::string error;
+
+		switch (err)
+		{
+		case GL_INVALID_OPERATION:error = "INVALID_OPERATION";
+			break;
+		case GL_INVALID_ENUM:error = "INVALID_ENUM";
+			break;
+		case GL_INVALID_VALUE:error = "INVALID_VALUE";
+			break;
+		case GL_OUT_OF_MEMORY:error = "OUT_OF_MEMORY";
+			break;
+		case GL_INVALID_FRAMEBUFFER_OPERATION:error = "INVALID_FRAMEBUFFER_OPERATION";
+			break;
+		default:error = "UNKNOWN";
+			break;
+		}
+		std::cerr << "GL_" << error << " : 0x" << std::hex << err << std::dec << " - " << file << ":" << line << std::endl;
+	
+		err = glGetError();
+	}
 }
 
 Engine::~Engine() = default;

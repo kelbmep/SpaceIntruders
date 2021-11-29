@@ -3,6 +3,7 @@
 #include <string>
 #include <memory>
 #include <iostream>
+#include <fstream>
 
 struct Point2D
 {
@@ -35,6 +36,8 @@ public:
 	void update();
 	bool isActive();
 	void drawObj(const std::string, int, int);
+	void CheckForErrors(std::string, int);
+	//void LoadShaderFromFile(std::string);
 private:
 	struct Pimpl;
 	std::unique_ptr<Pimpl> _pimpl;
