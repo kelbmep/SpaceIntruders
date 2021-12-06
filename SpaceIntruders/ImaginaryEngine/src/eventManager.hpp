@@ -4,10 +4,22 @@
 class EventManager {
 public:
 	struct QuitEvent {};
+	struct KeyDownEvent {};
+	struct KeyUpEvent {};
+	struct KeyLeftEvent {};
+	struct KeyRightEvent {};
+	struct KeyAEvent {};
+	struct KeyDEvent {};
 
 	struct Delegate
 	{
 		virtual void handle_event(QuitEvent) = 0;
+		virtual void handle_event(KeyDownEvent) = 0;
+		virtual void handle_event(KeyUpEvent) = 0;
+		virtual void handle_event(KeyLeftEvent) = 0;
+		virtual void handle_event(KeyRightEvent) = 0;
+		virtual void handle_event(KeyAEvent) = 0;
+		virtual void handle_event(KeyDEvent) = 0;
 	};
 
 	template<typename T>

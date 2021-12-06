@@ -1,12 +1,14 @@
 #version  330 core
 layout (location = 0) in vec2 position;
-layout (location = 1) in vec3 col;
-out vec3 oCol;
-vec2 oPos;
-uniform vec2 screenSize;
+layout (location = 1) in vec2 texCoord;
+out vec2 oTexCoord;
+uniform vec2 uScreenSize;
+uniform mat3 uTransform;
 void main()
 {
-	oPos = position / screenSize * 2 - 1;
-	gl_Position = vec4(oPos.x, oPos.y, 1.0, 1.0);
-	oCol = col;
+    vec2 pos = (uTransform * vec3(position, 1.0)).xy;
+    vec2 scaledPos = pos / uScreenSize;
+    scaledPos.y = 1.0 - scaledPos.y;
+    gl_Position = vec4(scaledPos.x, scaledPos.y, 1.0, 1.0);
+    oTexCoord = texCoord;
 }

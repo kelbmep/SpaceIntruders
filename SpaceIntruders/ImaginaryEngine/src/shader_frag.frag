@@ -1,7 +1,8 @@
 #version 330 core
-in vec3 oCol;
+in vec2 oTexCoord;
 out vec4 color;
+uniform sampler2D uTexture;
 void main()
 {
-	color = vec4(oCol, 1.0);
+	color = texture(uTexture, oTexCoord);
 }

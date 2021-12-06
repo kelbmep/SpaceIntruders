@@ -1,9 +1,10 @@
 #include <SDL/SDLRender.hpp>
+#include <iostream>
 
 SDLRender::SDLRender(const Engine& engine, std::shared_ptr<SDL_Window> sdlWindow)
 	: _engine{ engine }
 	, _sdlWindow(std::move(sdlWindow))
-	, _sdlRenderer{ SDL_CreateRenderer(_sdlWindow.get(), -1, 0), SDL_DestroyRenderer }
+	, _sdlRender{ SDL_CreateRenderer(_sdlWindow.get(), -1, 0), SDL_DestroyRenderer }
 {
 }
 
@@ -19,15 +20,32 @@ void SDLRender::draw()
 	int objWidth = screen_width - difference;
 	int objHeight = screen_height;
 
-	for (auto& tr : _picture)
+	/*for (auto& tr : _picture)
 	{
 		Point2D a = { static_cast<int>(difference / 2 + (tr.arr[0].x + 1.) * objWidth / 2.), objHeight - static_cast<int>((tr.arr[0].y + 1.) * objHeight / 2.) };
 		Point2D b = { static_cast<int>(difference / 2 + (tr.arr[1].x + 1.) * objWidth / 2.), objHeight - static_cast<int>((tr.arr[1].y + 1.) * objHeight / 2.) };
 		Point2D c = { static_cast<int>(difference / 2 + (tr.arr[2].x + 1.) * objWidth / 2.), objHeight - static_cast<int>((tr.arr[2].y + 1.) * objHeight / 2.) };
 		Triangle abc(a, b, c);
 		fillTriangle(&abc);
-	}
-	SDL_RenderPresent(_sdlRenderer.get());
+	}*/
+	SDL_RenderPresent(_sdlRender.get());
+
+	//_commands.clear();
+}
+
+std::shared_ptr<ShaderProgram> SDLRender::create_program(std::string name) const
+{
+	return nullptr;
+}
+
+std::shared_ptr<VertexBuffer> SDLRender::create_vertex_buffer(MeshData data) const
+{
+	return nullptr;
+}
+
+std::shared_ptr<Texture> SDLRender::create_texture(Bitmap bitmap) const
+{
+	return nullptr;
 }
 
 void SDLRender::drawLineByPoints(int x0, int y0, int x1, int y1)
@@ -57,11 +75,11 @@ void SDLRender::drawLineByPoints(int x0, int y0, int x1, int y1)
 	{
 		if (steep)
 		{
-			SDL_RenderDrawPoint(_sdlRenderer.get(), y, x);
+			SDL_RenderDrawPoint(_sdlRender.get(), y, x);
 		}
 		else
 		{
-			SDL_RenderDrawPoint(_sdlRenderer.get(), x, y);
+			SDL_RenderDrawPoint(_sdlRender.get(), x, y);
 		}
 		error2 += derror2;
 
@@ -100,11 +118,11 @@ void SDLRender::drawLineByPoints(Point2D a, Point2D b)
 	{
 		if (steep)
 		{
-			SDL_RenderDrawPoint(_sdlRenderer.get(), y, x);
+			SDL_RenderDrawPoint(_sdlRender.get(), y, x);
 		}
 		else
 		{
-			SDL_RenderDrawPoint(_sdlRenderer.get(), x, y);
+			SDL_RenderDrawPoint(_sdlRender.get(), x, y);
 		}
 		error2 += derror2;
 
@@ -118,7 +136,7 @@ void SDLRender::drawLineByPoints(Point2D a, Point2D b)
 
 void SDLRender::fillTriangle(Triangle* abc)
 {
-	SDL_SetRenderDrawColor(_sdlRenderer.get(), rand() % 256, rand() % 256, rand() % 256, rand() % 256);
+	SDL_SetRenderDrawColor(_sdlRender.get(), rand() % 256, rand() % 256, rand() % 256, rand() % 256);
 	if (abc->getFirst().y > abc->getSecond().y)
 	{
 		Point2D temp = abc->getFirst();
@@ -163,7 +181,7 @@ void SDLRender::fillTriangle(Triangle* abc)
 		}
 		for (int j = A.x; j <= B.x; j++)
 		{
-			SDL_RenderDrawPoint(_sdlRenderer.get(), j, abc->getFirst().y + i);
+			SDL_RenderDrawPoint(_sdlRender.get(), j, abc->getFirst().y + i);
 		}
 	}
 }

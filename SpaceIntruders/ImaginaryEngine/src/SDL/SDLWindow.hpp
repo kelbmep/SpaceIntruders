@@ -1,4 +1,5 @@
 #pragma once
+
 #include <window.hpp>
 #include <SDL.h>
 #include <string>
@@ -14,15 +15,15 @@ public:
 		Software
 	};
 
-	SDLWindow(const Engine& engine,
-		std::string name,
-		size_t width,
-		size_t height,
-		RenderMode renderMode);
+	SDLWindow(const Engine&,
+			std::string,
+			size_t,
+			size_t,
+			RenderMode);
 
 	void update() override;
 	void swap() override;
-	std::unique_ptr<Render> createRender() override;
+	std::unique_ptr<Render> create_render() override;
 private:
 	std::shared_ptr<SDL_Window> _window;
 	RenderMode _renderMode;

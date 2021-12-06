@@ -7,21 +7,21 @@ class Window
 {
 public:
 	virtual ~Window() = default;
-	Window(size_t width, size_t height) :
-		_width(width), _height(height)
+	Window(size_t w, size_t h) :
+		_width(w), _height(h)
 	{}
 
-	size_t getWidth() const
+	size_t get_width() const
 	{
 		return _width;
 	}
-	size_t getHeight() const
+	size_t get_height() const
 	{
 		return _height;
 	}
 	virtual void update() = 0;
 	virtual void swap() = 0;
-	virtual std::unique_ptr<Render> createRender() = 0;
+	virtual std::unique_ptr<Render> create_render() = 0;
 private:
 	size_t _width;
 	size_t _height;
