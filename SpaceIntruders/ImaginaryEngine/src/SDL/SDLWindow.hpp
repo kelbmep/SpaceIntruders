@@ -1,8 +1,10 @@
 #pragma once
 
+#include <GL/glew.h>
+#include <SDL/SDLRender.hpp>
+#include <GL/GLRender.hpp>
 #include <window.hpp>
 #include <SDL.h>
-#include <string>
 
 class Engine;
 

@@ -13,7 +13,7 @@ add_library(ImaginaryEngine STATIC src/engine.cpp src/engine.hpp src/window.hpp
 			src/texture.cpp src/texture.hpp src/vertexBuffer.cpp src/vertexBuffer.hpp 
 			src/GL/GLDrawProgram.hpp src/GL/GLDrawProgram.cpp src/GL/GLProgram.hpp 
 			src/GL/GLProgram.cpp src/GL/GLTexture.cpp src/GL/GLTexture.hpp 
-			src/GL/GLVertexBuffer.cpp src/GL/GLVertexBuffer.hpp)
+			src/GL/GLVertexBuffer.cpp src/GL/GLVertexBuffer.hpp "src/tank.hpp" "src/tank.cpp")
 set_target_properties(ImaginaryEngine PROPERTIES
     CXX_STANDARD 17
     CXX_STANDARD_REQUIRED YES

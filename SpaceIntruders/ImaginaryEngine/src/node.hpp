@@ -14,7 +14,7 @@ public:
 	void removeNode(std::shared_ptr<Node>);
 	void removeFromParent();
 
-	std::shared_ptr<Node> get_parent();
+	Node* get_parent();
 
 	const glm::vec2& get_position() const;
 	void set_position(const glm::vec2& pos);
@@ -35,7 +35,7 @@ public:
 protected:
 	virtual void visitSelf() {};
 
-	std::shared_ptr<Node> _parent;
+	Node* _parent;
 	std::vector <std::shared_ptr<Node>> _nodes;
 
 	glm::vec2 _pos = glm::vec2(0.0f);

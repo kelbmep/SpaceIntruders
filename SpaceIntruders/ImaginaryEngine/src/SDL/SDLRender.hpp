@@ -1,7 +1,7 @@
+#pragma once
+
 #include <render.hpp>
 #include <SDL.h>
-#include <memory>
-#include <string>
 #include <bitmap.hpp>
 
 struct Point2D

@@ -1,5 +1,4 @@
 #include <SDL/SDLRender.hpp>
-#include <iostream>
 
 SDLRender::SDLRender(const Engine& engine, std::shared_ptr<SDL_Window> sdlWindow)
 	: _engine{ engine }

@@ -15,7 +15,7 @@ class Node;
 class Engine : public EventManager::Delegate 
 {
 public:
-    explicit Engine();
+    explicit Engine(std::shared_ptr<EventManager>);
     ~Engine();
 
     void init(std::string, size_t, size_t, int);
@@ -28,12 +28,13 @@ public:
     std::shared_ptr<Node> get_scene();
 
     void handle_event(EventManager::QuitEvent);
-	void handle_event(EventManager::KeyUpEvent);
+	void handle_event(EventManager::KeyEvent);
+	/*void handle_event(EventManager::KeyUpEvent);
 	void handle_event(EventManager::KeyDownEvent);
 	void handle_event(EventManager::KeyLeftEvent);
 	void handle_event(EventManager::KeyRightEvent);
 	void handle_event(EventManager::KeyAEvent);
-	void handle_event(EventManager::KeyDEvent);
+	void handle_event(EventManager::KeyDEvent);*/
 	
 	size_t get_window_width() const;
     size_t get_window_height() const;
@@ -41,7 +42,7 @@ public:
     
 private:
 	std::unique_ptr<Window> _window;
-	std::unique_ptr<EventManager> _eventManager;
+	std::shared_ptr<EventManager> _eventManager;
 	std::unique_ptr<Render> _render;
 	bool _isActive = false;
 

@@ -5,7 +5,7 @@ void Node::addNode(std::shared_ptr<Node> n)
 {
 	if (n != nullptr)
 	{
-		n->_parent = shared_from_this();
+		n->_parent = this;
 		_nodes.push_back(std::move(n));
 	}
 }
@@ -21,7 +21,7 @@ void Node::removeFromParent()
 	_parent->removeNode(shared_from_this());
 }
 
-std::shared_ptr<Node> Node::get_parent()
+Node* Node::get_parent()
 {
 	return _parent;
 }

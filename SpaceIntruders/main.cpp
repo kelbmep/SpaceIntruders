@@ -4,11 +4,12 @@
 #include <sprite.hpp>
 #include <render.hpp>
 #include <window.hpp>
+#include <tank.hpp>
 #include <chrono>
 #include <tiny_obj_loader.cc>
 
-const int SCREEN_WIDTH = 1280;
-const int SCREEN_HEIGHT = 720;
+const int SCREEN_WIDTH = 1024;
+const int SCREEN_HEIGHT = 768;
 
 /*void read_file(std::string file_name, tinyobj::ObjReader& reader)
 {
@@ -75,7 +76,10 @@ const int SCREEN_HEIGHT = 720;
 */
 int main(int argc, char* argv[])
 {
-	Engine engine{};
+	std::shared_ptr<EventManager> evm = std::make_shared<EventManager>();
+	Engine engine{ evm };
+	//Tank tank{ engine };
+	
 	int mode = 0;
 	if (argc > 1)
 	{
@@ -83,25 +87,30 @@ int main(int argc, char* argv[])
 	}
 
 	engine.init("Mace Windows", SCREEN_WIDTH, SCREEN_HEIGHT, mode);
+	
+	std::shared_ptr<Tank> tank = std::make_shared<Tank>(engine);
+
+	evm->add_delegate(tank.get());
+
+	engine.get_scene()->addNode(tank);
 	//engine.drawObj(get_triangle_list("../../../../SpaceIntruders/ImaginaryEngine/src/african_head.obj"));
 
-	auto tank_body = std::make_shared<Sprite>(engine, "../../../../SpaceIntruders/ImaginaryEngine/src/img/tank_body_removed_back.png");
-	auto tank_head = std::make_shared<Sprite>(engine, "../../../../SpaceIntruders/ImaginaryEngine/src/img/tank_head_removed_back.png");
-	tank_body->set_position(glm::vec2(engine.get_window_width() * 0.2f,
+	/*auto tank_body = std::make_shared<Sprite>(engine, "../../../../SpaceIntruders/ImaginaryEngine/src/img/tank_body.png");
+	auto tank_tower = std::make_shared<Sprite>(engine, "../../../../SpaceIntruders/ImaginaryEngine/src/img/tank_tower.png");
+	tank_body->set_position(glm::vec2(engine.get_window_width() * 0.5f,
 		engine.get_window_height() * 0.5f));
-	tank_head->set_scale(glm::vec2(0.6f, 0.6f));
+
+	tank_body->set_scale(glm::vec2(1.5f, 1.5f));
 
 	glm::vec2 tank_body_size = tank_body->get_size();
-	glm::vec2 tank_head_size = tank_head->get_size();
-	glm::vec2 tank_head_scale = tank_head->get_scale();
+	glm::vec2 tank_tower_size = tank_tower->get_size();
+	glm::vec2 tank_body_scale = tank_body->get_scale();
 
-	tank_head->set_position(glm::vec2(tank_body_size.x * 0.5 - (tank_head_size.x * 0.5 * tank_head_scale.x),
-		tank_body_size.y / 2 - (tank_head_size.y * 0.5 * tank_head_scale.y)));
-
-	//tank_head->set_anchor(glm::vec2(tank_head_size.x * 0.23, tank_head_size.y * 0.29));
+	tank_tower->set_position(glm::vec2(tank_body_size.x * 0.5f, tank_body_size.y * 0.539f));
+	tank_tower->set_anchor(glm::vec2(0.5f, 0.694f));
 
 	engine.get_scene()->addNode(tank_body);
-	tank_body->addNode(tank_head);
+	tank_body->addNode(tank_tower);*/
 
 	while (engine.isActive()) 
 	{

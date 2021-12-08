@@ -7,9 +7,9 @@
 #include <SDL/SDLRender.hpp>
 #include <eventManager.hpp>
 
-Engine::Engine()
+Engine::Engine(std::shared_ptr<EventManager> ea)
 {
-    _eventManager = std::make_unique<EventManager>();
+    _eventManager = ea;// std::make_unique<EventManager>();
     _eventManager->add_delegate(this);
     //_eventManager = createUnique<EventsManager>();
 }
@@ -70,7 +70,12 @@ const Window& Engine::get_window() const
 
 Engine::~Engine() = default;
 
-void Engine::handle_event(EventManager::KeyDownEvent ev)
+void Engine::handle_event(EventManager::QuitEvent ev)
+{
+    _isActive = false;
+}
+
+/*void Engine::handle_event(EventManager::KeyDownEvent ev)
 {
     _scene->set_position(glm::vec2(_scene->get_position().x, _scene->get_position().y + 2));
 }
@@ -92,50 +97,15 @@ void Engine::handle_event(EventManager::KeyRightEvent ev)
 
 void Engine::handle_event(EventManager::KeyAEvent ev)
 {
-    for (auto child : _scene->get_children())
-    {
-        for (auto ch : child->get_children())
-        {
-            ch->set_rotation(ch->get_rotation() - 2);
-        }
-    }
 }
 
 void Engine::handle_event(EventManager::KeyDEvent ev)
 {
-    for (auto child : _scene->get_children())
-    {
-        for (auto ch : child->get_children())
-        {
-            ch->set_rotation(ch->get_rotation() + 2);
-        }
-    }
-}
-
-void Engine::handle_event(EventManager::QuitEvent ev)
-{
-	_isActive = false;
-}
-
-/*void Engine::handle_event(EventManager::KeyUpEvent ev)
-{
-    _isActive = false;
-}
-
-void Engine::handle_event(EventManager::KeyDownEvent ev)
-{
-    _isActive = false;
-}
-
-void Engine::handle_event(EventManager::KeyRightEvent ev)
-{
-    _isActive = false;
-}
-
-void Engine::handle_event(EventManager::KeyLeftEvent ev)
-{
-    _isActive = false;
 }*/
+void Engine::handle_event(EventManager::KeyEvent ev)
+{
+
+}
 
 /*void Engine::drawObj(std::vector<VertexTriangle> model)
 {

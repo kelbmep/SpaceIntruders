@@ -1,12 +1,4 @@
-#define GLEW_STATIC
-
-#include <GL/glew.h>
 #include <SDL/SDLWindow.hpp>
-#include <SDL/SDLRender.hpp>
-#include <GL/GLRender.hpp>
-#include <engine.hpp>
-#include <eventManager.hpp>
-#include <memory>
 
 SDLWindow::SDLWindow(const Engine& engine,
     std::string name,
@@ -63,33 +55,39 @@ void SDLWindow::update()
     {
         event_manager.invoke_event(EventManager::QuitEvent{});
     }
-    else if (e.type == SDL_KEYDOWN)
+    else if (e.type == SDL_KEYDOWN || e.type == SDL_KEYUP)
     {
+        EventManager::KeyType type = EventManager::KeyType::KeyUp;
+        if(e.type == SDL_KEYDOWN)
+            type = EventManager::KeyType::KeyDown;
+        EventManager::KeyCode code = EventManager::KeyCode::Unknown;
+
         switch (e.key.keysym.sym)
         {
-        case SDLK_DOWN:
-            event_manager.invoke_event(EventManager::KeyDownEvent{});
-            break;
         case SDLK_UP:
-            event_manager.invoke_event(EventManager::KeyUpEvent{});
+            code = EventManager::KeyCode::Up;
+            break;
+        case SDLK_DOWN:
+            code = EventManager::KeyCode::Down;
             break;
         case SDLK_LEFT:
-            event_manager.invoke_event(EventManager::KeyLeftEvent{});
+            code = EventManager::KeyCode::Left;
             break;
         case SDLK_RIGHT:
-            event_manager.invoke_event(EventManager::KeyRightEvent{});
+            code = EventManager::KeyCode::Right;
             break;
         //case SDLK_SPACE:
         //    event_manager.invoke_event(EventManager::KeySpaceEvent{});
         //    break;
         case SDLK_a:
-            event_manager.invoke_event(EventManager::KeyAEvent{});
+            code = EventManager::KeyCode::A;
             break;
         case SDLK_d:
-            event_manager.invoke_event(EventManager::KeyDEvent{});
+            code = EventManager::KeyCode::D;
             break;
         default: break;
         }
+        event_manager.invoke_event(EventManager::KeyEvent{ code, type });
     }
 }
 
