@@ -1,12 +1,12 @@
-﻿// SpaceIntruders.cpp: определяет точку входа для приложения.
-//
-#include <engine.hpp>
+﻿#include <engine.hpp>
 #include <sprite.hpp>
 #include <render.hpp>
 #include <window.hpp>
-#include <tank.hpp>
+#include <../../Game/tank.hpp>
 #include <chrono>
 #include <tiny_obj_loader.cc>
+#include <sound.hpp>
+#include <audioManager.hpp>
 
 const int SCREEN_WIDTH = 1024;
 const int SCREEN_HEIGHT = 768;
@@ -77,8 +77,8 @@ const int SCREEN_HEIGHT = 768;
 int main(int argc, char* argv[])
 {
 	std::shared_ptr<EventManager> evm = std::make_shared<EventManager>();
-	Engine engine{ evm };
-	//Tank tank{ engine };
+	std::shared_ptr<AudioManager> audioManager = std::make_shared<AudioManager>();
+	Engine engine{ evm, audioManager };
 	
 	int mode = 0;
 	if (argc > 1)
@@ -88,7 +88,7 @@ int main(int argc, char* argv[])
 
 	engine.init("Mace Windows", SCREEN_WIDTH, SCREEN_HEIGHT, mode);
 	
-	std::shared_ptr<Tank> tank = std::make_shared<Tank>(engine);
+	std::shared_ptr<Tank> tank = std::make_shared<Tank>(engine, audioManager);
 
 	evm->add_delegate(tank.get());
 
@@ -111,7 +111,11 @@ int main(int argc, char* argv[])
 
 	engine.get_scene()->addNode(tank_body);
 	tank_body->addNode(tank_tower);*/
-
+	
+	auto sound = audioManager->createSound("../../../../SpaceIntruders/ImaginaryEngine/src/sound/Background.wav", false, 0.1);
+	
+	sound->play();
+	
 	while (engine.isActive()) 
 	{
 		engine.update();

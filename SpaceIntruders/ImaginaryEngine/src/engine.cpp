@@ -7,11 +7,11 @@
 #include <SDL/SDLRender.hpp>
 #include <eventManager.hpp>
 
-Engine::Engine(std::shared_ptr<EventManager> ea)
+Engine::Engine(std::shared_ptr<EventManager> ea, std::shared_ptr<AudioManager> audioManager)
 {
-    _eventManager = ea;// std::make_unique<EventManager>();
+    _eventManager = ea;
     _eventManager->add_delegate(this);
-    //_eventManager = createUnique<EventsManager>();
+    _audioManager = audioManager;
 }
 
 void Engine::init(std::string window_name, size_t width, size_t height, int m)
@@ -22,15 +22,6 @@ void Engine::init(std::string window_name, size_t width, size_t height, int m)
     _render = _window->create_render(); 
     _scene = std::make_shared<Node>();
     _isActive = true;
-
-    /*EventsAutoRegistarator reg(*_eventsManager, EventsAutoRegistarator::NoRemove);
-    reg += [this](const SystemEvent& e)
-    {
-        if (e.type == SystemEvent::Type::Quit)
-        {
-            _isActive = false;
-        }
-    };*/
 }
 
 bool Engine::isActive()
@@ -40,8 +31,10 @@ bool Engine::isActive()
 
 void Engine::update()
 {
-    _window->update();
+    _audioManager->update();
 
+    _window->update();
+    
     _scene->visit();
     _render->draw();
 
@@ -75,33 +68,6 @@ void Engine::handle_event(EventManager::QuitEvent ev)
     _isActive = false;
 }
 
-/*void Engine::handle_event(EventManager::KeyDownEvent ev)
-{
-    _scene->set_position(glm::vec2(_scene->get_position().x, _scene->get_position().y + 2));
-}
-
-void Engine::handle_event(EventManager::KeyUpEvent ev)
-{
-    _scene->set_position(glm::vec2(_scene->get_position().x, _scene->get_position().y - 2));
-}
-
-void Engine::handle_event(EventManager::KeyLeftEvent ev)
-{
-    _scene->set_position(glm::vec2(_scene->get_position().x - 2, _scene->get_position().y));
-}
-
-void Engine::handle_event(EventManager::KeyRightEvent ev)
-{
-    _scene->set_position(glm::vec2(_scene->get_position().x + 2, _scene->get_position().y));
-}
-
-void Engine::handle_event(EventManager::KeyAEvent ev)
-{
-}
-
-void Engine::handle_event(EventManager::KeyDEvent ev)
-{
-}*/
 void Engine::handle_event(EventManager::KeyEvent ev)
 {
 

@@ -3,9 +3,6 @@
 #include <node.hpp>
 #include <engine.hpp>
 #include <vector>
-//#include <GL/GLRender.hpp>
-//#include <engine.hpp>
-//#include <glm/gtx/matrix_transform_2d.hpp>
 
 class Engine;
 class Texture;
@@ -17,7 +14,6 @@ class Vec2Uniform;
 
 class Sprite : public Node {
 public:
-	//Sprite() {};
 	explicit Sprite(const Engine&, std::string);
 protected:
 	void visitSelf() override;

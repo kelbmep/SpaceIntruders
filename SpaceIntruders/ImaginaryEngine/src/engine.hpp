@@ -5,6 +5,7 @@
 #include <iostream>
 #include <fstream>
 #include <eventManager.hpp>
+#include <audioManager.hpp>
 
 class Window;
 class Render;
@@ -15,7 +16,7 @@ class Node;
 class Engine : public EventManager::Delegate 
 {
 public:
-    explicit Engine(std::shared_ptr<EventManager>);
+    explicit Engine(std::shared_ptr<EventManager>, std::shared_ptr<AudioManager>);
     ~Engine();
 
     void init(std::string, size_t, size_t, int);
@@ -43,6 +44,7 @@ public:
 private:
 	std::unique_ptr<Window> _window;
 	std::shared_ptr<EventManager> _eventManager;
+	std::shared_ptr<AudioManager> _audioManager;
 	std::unique_ptr<Render> _render;
 	bool _isActive = false;
 

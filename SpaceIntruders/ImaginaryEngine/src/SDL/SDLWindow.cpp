@@ -76,14 +76,17 @@ void SDLWindow::update()
         case SDLK_RIGHT:
             code = EventManager::KeyCode::Right;
             break;
-        //case SDLK_SPACE:
-        //    event_manager.invoke_event(EventManager::KeySpaceEvent{});
-        //    break;
         case SDLK_a:
             code = EventManager::KeyCode::A;
             break;
         case SDLK_d:
             code = EventManager::KeyCode::D;
+            break;
+        case SDLK_SPACE:
+            code = EventManager::KeyCode::Space;
+            break;
+        case SDLK_ESCAPE:
+            event_manager.invoke_event(EventManager::QuitEvent{});
             break;
         default: break;
         }
@@ -96,7 +99,6 @@ std::unique_ptr<Render> SDLWindow::create_render()
     if (_renderMode == RenderMode::OpenGL)
     {
         return std::make_unique<GLRender>(_engine, _window.get());
-        //return std::make_unique<SDLRender>(_engine, _window);
     }
     else
     {
