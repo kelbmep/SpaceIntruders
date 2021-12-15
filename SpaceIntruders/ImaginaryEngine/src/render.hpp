@@ -40,6 +40,7 @@ public:
     }
 
     virtual void draw() = 0;
+    virtual void draw(size_t, size_t) = 0;
 
     virtual std::shared_ptr<VertexBuffer> create_vertex_buffer(MeshData) const = 0;
     virtual std::shared_ptr<ShaderProgram> create_program(std::string) const = 0;

@@ -10,6 +10,7 @@ public:
     explicit GLVertexBuffer(const Engine&, MeshData);
     virtual ~GLVertexBuffer();
     void draw();
+    void draw(size_t, size_t);
 private:
     uint32_t _VAO = 0;
     uint32_t _VBO = 0;

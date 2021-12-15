@@ -16,7 +16,7 @@ class Node;
 class Engine : public EventManager::Delegate 
 {
 public:
-    explicit Engine(std::shared_ptr<EventManager>, std::shared_ptr<AudioManager>);
+    explicit Engine();
     ~Engine();
 
     void init(std::string, size_t, size_t, int);
@@ -25,7 +25,8 @@ public:
     const EventManager& get_event_manager() const;
     const Render& get_render() const;
     const Window& get_window() const;
-    
+	const AudioManager& get_audio_manager() const;
+	
     std::shared_ptr<Node> get_scene();
 
     void handle_event(EventManager::QuitEvent);
@@ -39,12 +40,12 @@ public:
 	
 	size_t get_window_width() const;
     size_t get_window_height() const;
-    //void drawObj(std::vector<VertexTriangle>);
+	//void drawObj(std::vector<VertexTriangle>);
     
 private:
 	std::unique_ptr<Window> _window;
 	std::shared_ptr<EventManager> _eventManager;
-	std::shared_ptr<AudioManager> _audioManager;
+	std::unique_ptr<AudioManager> _audioManager;
 	std::unique_ptr<Render> _render;
 	bool _isActive = false;
 

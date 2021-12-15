@@ -14,7 +14,8 @@ add_library(ImaginaryEngine STATIC src/engine.cpp src/engine.hpp src/window.hpp
 			src/GL/GLDrawProgram.hpp src/GL/GLDrawProgram.cpp src/GL/GLProgram.hpp 
 			src/GL/GLProgram.cpp src/GL/GLTexture.cpp src/GL/GLTexture.hpp 
 			src/GL/GLVertexBuffer.cpp src/GL/GLVertexBuffer.hpp src/sound.hpp 
-			src/sound.cpp src/audioManager.cpp src/audioManager.hpp)
+			src/sound.cpp src/audioManager.cpp src/audioManager.hpp src/button.hpp 
+			src/button.cpp)
 set_target_properties(ImaginaryEngine PROPERTIES
     CXX_STANDARD 17
     CXX_STANDARD_REQUIRED YES
@@ -32,8 +33,11 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/glew)
 set(GLEW_LIBRARY libglew_static)
 #endif()
 
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/imgui)
+set(IMGUI_LIBRARY imgui)
+
 target_link_libraries(ImaginaryEngine PUBLIC
-		${SDL2MAIN_LIBRARY} ${SDL2_LIBRARY} ${GLEW_LIBRARY})
+		${SDL2MAIN_LIBRARY} ${SDL2_LIBRARY} ${GLEW_LIBRARY} ${IMGUI_LIBRARY})
 
 target_include_directories(ImaginaryEngine 
 		PUBLIC
@@ -42,6 +46,7 @@ target_include_directories(ImaginaryEngine
 		PRIVATE
 			${CMAKE_CURRENT_SOURCE_DIR}/libs/SDL2/include
 			${CMAKE_CURRENT_SOURCE_DIR}/libs/glew/include
+			${CMAKE_CURRENT_SOURCE_DIR}/libs/imgui/include
 			${CMAKE_CURRENT_SOURCE_DIR}/libs/stbi)
 
 set(SYSTEM_LIBS -mwindows ${GLEW_LIBRARY} ${OPENGL_LIBRARIES})

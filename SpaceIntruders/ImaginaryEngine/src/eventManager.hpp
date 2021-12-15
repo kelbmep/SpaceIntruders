@@ -29,12 +29,31 @@ public:
 		KeyType type;
 	};
 
+	/*struct Coords
+	{
+		int x;
+		int y;
+	};
+
+	enum class MouseType
+	{
+		MouseDown,
+		MouseUp
+	};
+
+	struct MouseEvent
+	{
+		Coords coords;
+		MouseType type;
+	};*/
+
 	struct QuitEvent {};
 	
 	struct Delegate
 	{
 		virtual void handle_event(KeyEvent) = 0;
 		virtual void handle_event(QuitEvent) = 0;
+		//virtual void handle_event(MouseEvent);
 	};
 
 	template<typename T>
@@ -46,7 +65,7 @@ public:
 		}
 	}
 
-	void add_delegate(Delegate* delegate);
+	void add_delegate(Delegate* delegate) const;
 private:
-	std::vector<Delegate*> _delegates;
+	mutable std::vector<Delegate*> _delegates;
 };

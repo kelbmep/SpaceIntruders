@@ -32,6 +32,21 @@ void SDLRender::draw()
 	//_commands.clear();
 }
 
+void SDLRender::draw(size_t count, size_t pos)
+{
+	int screen_width = static_cast<int>(_engine.get_window_width());
+	int screen_height = static_cast<int>(_engine.get_window_height());
+	int difference = 0;
+	if (screen_width > screen_height)
+	{
+		difference = screen_width - screen_height;
+	}
+	int objWidth = screen_width - difference;
+	int objHeight = screen_height;
+
+	SDL_RenderPresent(_sdlRender.get());
+}
+
 std::shared_ptr<ShaderProgram> SDLRender::create_program(std::string name) const
 {
 	return nullptr;

@@ -86,6 +86,29 @@ void GLRender::draw()
 	_commands.clear();
 }
 
+void GLRender::draw(size_t count, size_t pos)
+{
+	glDisable(GL_CULL_FACE);
+	glClearColor(1.0f, 0.0f, 1.0f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	for (const auto& command : _commands)
+	{
+		auto glVertexBuffer = std::dynamic_pointer_cast<GLVertexBuffer>(command.vertexBuffer);
+
+		if (glVertexBuffer)
+		{
+			auto glProgram = std::dynamic_pointer_cast<GLProgram>(command.program);
+			if (glProgram)
+			{
+				glProgram->activate();
+				glVertexBuffer->draw(count, pos);
+			}
+		}
+	}
+	_commands.clear();
+}
+
 /*std::shared_ptr<VertexBuffer> GLRender::create_vertex_buffer(MeshData data) const
 {
 	return std::make_shared<GLVertexBuffer>(_engine, data);

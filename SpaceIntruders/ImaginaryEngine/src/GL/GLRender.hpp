@@ -11,6 +11,7 @@ public:
 	explicit GLRender(const Engine& engine, SDL_Window* window);
 
 	void draw() override;
+	void draw(size_t, size_t) override;
 
 	std::shared_ptr<VertexBuffer> create_vertex_buffer(MeshData) const override;
 	std::shared_ptr<ShaderProgram> create_program(std::string) const override;

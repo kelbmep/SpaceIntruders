@@ -7,11 +7,9 @@
 #include <SDL/SDLRender.hpp>
 #include <eventManager.hpp>
 
-Engine::Engine(std::shared_ptr<EventManager> ea, std::shared_ptr<AudioManager> audioManager)
+Engine::Engine()
 {
-    _eventManager = ea;
-    _eventManager->add_delegate(this);
-    _audioManager = audioManager;
+
 }
 
 void Engine::init(std::string window_name, size_t width, size_t height, int m)
@@ -22,6 +20,9 @@ void Engine::init(std::string window_name, size_t width, size_t height, int m)
     _render = _window->create_render(); 
     _scene = std::make_shared<Node>();
     _isActive = true;
+    _audioManager = std::make_unique<AudioManager>();   
+    _eventManager = std::make_shared<EventManager>();
+    _eventManager->add_delegate(this);
 }
 
 bool Engine::isActive()
@@ -36,7 +37,7 @@ void Engine::update()
     _window->update();
     
     _scene->visit();
-    _render->draw();
+    _render->draw(6, 0);
 
     _window->swap();
 }
@@ -59,6 +60,11 @@ std::shared_ptr<Node> Engine::get_scene()
 const Window& Engine::get_window() const
 {
     return *_window;
+}
+
+const AudioManager& Engine::get_audio_manager() const
+{
+    return *_audioManager;
 }
 
 Engine::~Engine() = default;
@@ -87,3 +93,4 @@ size_t Engine::get_window_height() const
 {
 	return _window->get_height();
 }
+

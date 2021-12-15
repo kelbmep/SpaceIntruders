@@ -12,13 +12,21 @@ Sound::Sound(std::string file_name, bool is_loop, float volume): _isLoop(is_loop
 	}
 	
 	if (volume < 0)
+	{
 		_volume = 0.0;
+	}
 	else if (volume > 1)
+	{
 		_volume = 1.0;
+	}
+	else
+	{
+		_volume = volume;
+	}
 
 	uint32_t audio_len = 0;
 
-	SDL_AudioSpec* audio_spec = SDL_LoadWAV_RW(file, 1, &_audio_spec_from_file, _data.get(), &audio_len);
+	SDL_AudioSpec* audio_spec = SDL_LoadWAV_RW(file, 1, &_audio_spec_from_file, &_data, &audio_len);
 	
 	_file_len = audio_len;
 	
@@ -27,28 +35,28 @@ Sound::Sound(std::string file_name, bool is_loop, float volume): _isLoop(is_loop
 		throw std::runtime_error("Sound isn't loaded.");
 	}
 
-	_state = State::STOP;
+	_state = State::Pause;
 }
 
 void Sound::play()
 {
-	_state = State::PLAY;
+	_state = State::Play;
 }
 
 void Sound::pause()
 {
-	_state = State::PAUSE;
+	_state = State::Pause;
 }
 
 void Sound::stop()
 {
-	_state = State::STOP;
+	_state = State::Stop;
 	_pos = 0;
 }
 
 bool Sound::is_playing()
 {
-	return _state == State::PLAY;
+	return _state == State::Play;
 }
 
 SDL_AudioSpec Sound::get_AudioFormat() const
@@ -58,5 +66,5 @@ SDL_AudioSpec Sound::get_AudioFormat() const
 
 Sound::~Sound()
 {
-	SDL_FreeWAV(*_data.get());
+	SDL_FreeWAV(_data);
 }

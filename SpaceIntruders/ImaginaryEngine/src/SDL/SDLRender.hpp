@@ -33,6 +33,7 @@ public:
 	explicit SDLRender(const Engine&, std::shared_ptr<SDL_Window>);
 
 	void draw() override;
+	void draw(size_t, size_t) override;
 	void drawLineByPoints(int, int, int, int);
 	void drawLineByPoints(Point2D, Point2D);
 	void fillTriangle(Triangle*);

@@ -4,9 +4,11 @@
 #include <glm/gtx/rotate_vector.hpp>
 #include <vector>
 
-Tank::Tank(const Engine& engine, std::shared_ptr<AudioManager> audioManager) : _engine{ engine }
+Tank::Tank(const Engine& engine) : _engine{ engine }
 {
-    _audioManager = audioManager;
+    _shot = _engine.get_audio_manager().createSound("../../../../SpaceIntruders/ImaginaryEngine/src/sound/Shot.wav", false, 0.25);
+    _movement = _engine.get_audio_manager().createSound("../../../../SpaceIntruders/ImaginaryEngine/src/sound/Movement.wav", true, 0.3);
+
     _body = std::make_shared<Sprite>(_engine, "../../../../SpaceIntruders/ImaginaryEngine/src/img/tank_body.png");
     _tower = std::make_shared<Sprite>(_engine, "../../../../SpaceIntruders/ImaginaryEngine/src/img/tank_tower.png");
     this->set_position(glm::vec2(_engine.get_window_width() * 0.5f,
@@ -62,9 +64,8 @@ void Tank::handle_event(EventManager::KeyEvent e)
 
     if (e.key == EventManager::KeyCode::Space && e.type == EventManager::KeyType::KeyUp)
     {
-        auto sound = _audioManager->createSound("../../../../SpaceIntruders/ImaginaryEngine/src/sound/Shot.wav", false, 0.05);
-        sound->play();
-        _shots.push_back(sound);
+        _shot->stop();
+        _shot->play();
         //auto vector = glm::rotate(glm::vec2( 0.0f, -1.0f ), glm::radians(get_rotation()));
         //auto shot = std::make_shared<Bullet>(_engine, vector * _speed);
         //shot->set_position(_pos * vector);// *160.0f);// _pos* vector * 160.0f);
@@ -184,5 +185,29 @@ void Tank::visitSelf()
         }
     }
     
+    if (_speed > 40.0f || _speed < -40.0f || _turnSpeed > 10.0f || _turnSpeed < -10.0f)
+    {
+        _movement->play();
+    }
+    else
+    {
+        _movement->pause();
+    }
     set_rotation(_rotation);
+    
+    if (_pos.x < -0.5 * _body.get()->get_size().y)
+        _pos.x += _engine.get_window_width() + _body.get()->get_size().y;
+    else if(_pos.x > _engine.get_window_width() + 0.5 * _body.get()->get_size().y)
+        _pos.x -= _engine.get_window_width() + _body.get()->get_size().y;
+
+    if (_pos.y < -0.5 * _body.get()->get_size().y)
+        _pos.y += _engine.get_window_height() + _body.get()->get_size().y;
+    else if (_pos.y > _engine.get_window_height() + 0.5 * _body.get()->get_size().y)
+        _pos.y -= _engine.get_window_height() + _body.get()->get_size().y;
+}
+
+Tank::~Tank()
+{
+    _shot->stop();
+    _movement->stop();
 }

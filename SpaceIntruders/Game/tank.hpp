@@ -11,15 +11,14 @@
 class Tank : public EventManager::Delegate, public Node
 {
 public:
-	explicit Tank(const Engine&, std::shared_ptr<AudioManager>);
-	
+	explicit Tank(const Engine&);
+	~Tank();
 	void handle_event(EventManager::QuitEvent);
 	void handle_event(EventManager::KeyEvent);
 	void visitSelf() override;
 private:
 	const Engine& _engine;
-	std::shared_ptr<AudioManager> _audioManager;
-
+	
 	bool _isUp = false;
 	bool _isDown = false;
 	bool _isLeft = false;
@@ -34,5 +33,6 @@ private:
 	float _rotation = 0;
 	float _turnSpeed = 0;
 	
-	std::vector<std::shared_ptr<Sound>> _shots;
+	std::shared_ptr<Sound> _shot;
+	std::shared_ptr<Sound> _movement;
 };

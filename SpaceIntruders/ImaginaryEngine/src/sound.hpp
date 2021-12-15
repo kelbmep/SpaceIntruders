@@ -7,8 +7,9 @@
 class Sound 
 {
 public:
-	Sound(std::string, bool, float);
+	explicit Sound(std::string, bool, float);
 	~Sound();
+
 	void play();
 	void pause();
 	void stop();
@@ -16,18 +17,19 @@ public:
 	bool is_playing();
 
 	enum class State {
-		PLAY,
-		PAUSE,
-		STOP
+		Play,
+		Pause,
+		Stop
 	};
-	State _state = State::STOP;
+
+	State _state = State::Pause;
 
 	friend class AudioManager;
 private:
 	size_t _file_len = 0;
 	size_t _pos = 0;
 	
-	std::shared_ptr<uint8_t*> _data = std::make_shared<uint8_t*>();
+	uint8_t* _data = nullptr;
 
 	SDL_AudioSpec _audio_spec_from_file{};
 	SDL_AudioSpec get_AudioFormat() const;
