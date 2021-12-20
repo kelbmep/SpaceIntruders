@@ -1,6 +1,5 @@
 #include <GL/GLDrawProgram.hpp>
 #include <fstream>
-#include <GL/GLProgram.hpp>
 #include <string>
 
 std::string read_from_file(std::string file_path)

@@ -46,15 +46,15 @@ void AudioManager::audio_callback(void* userdata, uint8_t* stream, int len)
 			{
 				amount = len;
 			}
-			SDL_MixAudioFormat(stream, sound->_data + sound->_pos, AUDIO_S16LSB, amount, (int)(sound->_volume * SDL_MIX_MAXVOLUME));
+			SDL_MixAudioFormat(stream, sound->_data + sound->_pos, AUDIO_S16LSB, (Uint32)amount, (int)(sound->_volume * SDL_MIX_MAXVOLUME));
 
 			sound->_pos += amount;
 
-			if (sound->_pos >= sound->_file_len && sound->_isLoop)
+			if (sound->_pos >= sound->_file_len && sound->_is_loop)
 			{
 				sound->_pos = 0;
 			}
-			else if (sound->_pos >= sound->_file_len && !sound->_isLoop)
+			else if (sound->_pos >= sound->_file_len && !sound->_is_loop)
 			{
 				sound->stop();
 			}
@@ -62,9 +62,9 @@ void AudioManager::audio_callback(void* userdata, uint8_t* stream, int len)
 	}
 }
 
-std::shared_ptr<Sound> AudioManager::createSound(std::string file_name, bool is_loop, float volume) const
+std::shared_ptr<Sound> AudioManager::create_sound(std::string file_name, bool is_loop, float volume) const
 {
-	std::shared_ptr<Sound> sound = std::make_shared<Sound>(file_name, is_loop, volume);
+	auto sound = std::make_shared<Sound>(file_name, is_loop, volume);
 	_buffers.push_back(sound);
 	return sound;
 }
@@ -73,10 +73,10 @@ void AudioManager::update()
 {
 	_buffers.erase(std::remove_if(_buffers.begin(), _buffers.end(), [](const std::weak_ptr<Sound>& s)
 		{ return s.expired(); }), _buffers.end());
-		//{ return s.lock().get()->_state == Sound::State::Stop; }), _buffers.end());
+
 	if (_buffers.size() != 0)
 	{
-		bool is_play = false;
+		auto is_play = false;
 
 		for (auto& sound : _buffers)
 		{

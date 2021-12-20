@@ -1,7 +1,8 @@
 #pragma once
 
-#include <bitmap.hpp>
 #include <texture.hpp>
+
+class Bitmap;
 
 class GLTexture : public Texture
 {
@@ -9,5 +10,5 @@ public:
     explicit GLTexture(Bitmap);
     void active();
 private:
-    uint32_t _id;
+    uint32_t _ID;
 };

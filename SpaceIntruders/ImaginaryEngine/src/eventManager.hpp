@@ -1,4 +1,5 @@
 #pragma once
+
 #include <vector>
 
 class EventManager {
@@ -29,31 +30,19 @@ public:
 		KeyType type;
 	};
 
-	/*struct Coords
-	{
-		int x;
-		int y;
-	};
-
-	enum class MouseType
-	{
-		MouseDown,
-		MouseUp
-	};
-
 	struct MouseEvent
 	{
-		Coords coords;
-		MouseType type;
-	};*/
+		int x, y;
+		KeyType type;
+	};
 
 	struct QuitEvent {};
 	
 	struct Delegate
 	{
-		virtual void handle_event(KeyEvent) = 0;
-		virtual void handle_event(QuitEvent) = 0;
-		//virtual void handle_event(MouseEvent);
+		virtual void handle_event(KeyEvent) {};
+		virtual void handle_event(QuitEvent) {};
+		virtual void handle_event(MouseEvent) {};
 	};
 
 	template<typename T>

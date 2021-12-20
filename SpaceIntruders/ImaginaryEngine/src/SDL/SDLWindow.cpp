@@ -1,19 +1,15 @@
 #include <SDL/SDLWindow.hpp>
+#include <GL/GLRender.hpp>
+#include <SDL/SDLRender.hpp>
 
-SDLWindow::SDLWindow(const Engine& engine,
-    std::string name,
-    size_t width,
-    size_t height,
-    RenderMode renderMode)
-    : Window(width, height)
-    , _engine(engine)
-    , _renderMode(renderMode)
+SDLWindow::SDLWindow(const Engine& engine, std::string name, size_t width, size_t height, RenderMode renderMode)
+    : Window(width, height), _engine(engine), _renderMode(renderMode)
 {
     SDL_version version = { 0, 0, 0 };
 
     SDL_GetVersion(&version);
 
-    printf("SDL Version: %d.%d.%d", version.major, version.minor, version.patch);
+    printf("SDL Version: %d.%d.%d\n", version.major, version.minor, version.patch);
 
     SDL_Init(SDL_INIT_EVERYTHING);
     
@@ -33,8 +29,8 @@ SDLWindow::SDLWindow(const Engine& engine,
 
     _window = { SDL_CreateWindow(name.data(),
                              SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-                             width,
-                             height,
+                             (int)width,
+                             (int)height,
                              windowFlags), SDL_DestroyWindow };
 
     /*int w, h;
@@ -57,10 +53,10 @@ void SDLWindow::update()
     }
     else if (e.type == SDL_KEYDOWN || e.type == SDL_KEYUP)
     {
-        EventManager::KeyType type = EventManager::KeyType::KeyUp;
+        auto type = EventManager::KeyType::KeyUp;
         if(e.type == SDL_KEYDOWN)
             type = EventManager::KeyType::KeyDown;
-        EventManager::KeyCode code = EventManager::KeyCode::Unknown;
+        auto code = EventManager::KeyCode::Unknown;
 
         switch (e.key.keysym.sym)
         {
@@ -91,6 +87,14 @@ void SDLWindow::update()
         default: break;
         }
         event_manager.invoke_event(EventManager::KeyEvent{ code, type });
+    }
+    else if ((e.type == SDL_MOUSEBUTTONDOWN || e.type == SDL_MOUSEBUTTONUP) && e.button.button == SDL_BUTTON_LEFT)
+    {
+        auto type = EventManager::KeyType::KeyUp;
+        if (e.type == SDL_MOUSEBUTTONDOWN)
+            type = EventManager::KeyType::KeyDown;
+
+        event_manager.invoke_event(EventManager::MouseEvent{ e.button.x, e.button.y, type });
     }
 }
 

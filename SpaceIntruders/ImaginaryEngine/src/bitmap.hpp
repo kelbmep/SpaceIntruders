@@ -8,6 +8,7 @@ class Bitmap
 {
 public:
     explicit Bitmap(std::string);
+    explicit Bitmap(int, std::vector<unsigned char>, glm::vec2);
 
     const std::vector<unsigned char>& get_image() const;
 
@@ -15,7 +16,7 @@ public:
     glm::vec2 get_size() const;
 
 private:
-    int _colorChannels;
+    int _color_channels;
     std::vector<unsigned char> _image;
     glm::vec2 _size;
 };

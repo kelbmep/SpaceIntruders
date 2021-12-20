@@ -1,4 +1,3 @@
-//#include "GlHeaders.hpp"
 #include <GL/GLProgram.hpp>
 #include <GL/GLTexture.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -8,45 +7,45 @@
 
 GLProgram::GLProgram(std::string vs_s, std::string ps_s)
 {
-    const char* vs = vs_s.c_str();
-    const char* ps = ps_s.c_str();
-    _vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(_vertexShader, 1, &vs, nullptr);
-    glCompileShader(_vertexShader);
+    const auto* vs = vs_s.c_str();
+    const auto* ps = ps_s.c_str();
+    _vertex_shader = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(_vertex_shader, 1, &vs, nullptr);
+    glCompileShader(_vertex_shader);
 
     GLint success;
-    GLchar infoLog[512];
-    glGetShaderiv(_vertexShader, GL_COMPILE_STATUS, &success);
+    GLchar info_log[512];
+    glGetShaderiv(_vertex_shader, GL_COMPILE_STATUS, &success);
 
     if (!success)
     {
-        glGetShaderInfoLog(_vertexShader, 512, nullptr, infoLog);
-        std::cerr << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
+        glGetShaderInfoLog(_vertex_shader, 512, nullptr, info_log);
+        std::cerr << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << info_log << std::endl;
     }
 
-    _fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(_fragmentShader, 1, &ps, nullptr);
-    glCompileShader(_fragmentShader);
+    _fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(_fragment_shader, 1, &ps, nullptr);
+    glCompileShader(_fragment_shader);
 
-    glGetShaderiv(_fragmentShader, GL_COMPILE_STATUS, &success);
+    glGetShaderiv(_fragment_shader, GL_COMPILE_STATUS, &success);
 
     if (!success)
     {
-        glGetShaderInfoLog(_fragmentShader, 512, nullptr, infoLog);
-        std::cerr << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
+        glGetShaderInfoLog(_fragment_shader, 512, nullptr, info_log);
+        std::cerr << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << info_log << std::endl;
     }
 
     _program = glCreateProgram();
 
-    glAttachShader(_program, _vertexShader);
-    glAttachShader(_program, _fragmentShader);
+    glAttachShader(_program, _vertex_shader);
+    glAttachShader(_program, _fragment_shader);
     glLinkProgram(_program);
 
     glGetProgramiv(_program, GL_LINK_STATUS, &success);
     if (!success)
     {
-        glGetProgramInfoLog(_program, 512, nullptr, infoLog);
-        std::cerr << "ERROR::SHADER::LINKING_FAILED\n" << infoLog << std::endl;
+        glGetProgramInfoLog(_program, 512, nullptr, info_log);
+        std::cerr << "ERROR::SHADER::LINKING_FAILED\n" << info_log << std::endl;
     }
 
     GLint i;
@@ -55,8 +54,8 @@ GLProgram::GLProgram(std::string vs_s, std::string ps_s)
     GLint size; // size of the variable
     GLenum type; // type of the variable (float, vec3 or mat4, etc)
 
-    const GLsizei bufSize = 16; // maximum name length
-    GLchar name[bufSize]; // variable name in GLSL
+    const GLsizei buf_size = 16; // maximum name length
+    GLchar name[buf_size]; // variable name in GLSL
     GLsizei length; // name length
 
     glGetProgramiv(_program, GL_ACTIVE_ATTRIBUTES, &count);
@@ -64,7 +63,7 @@ GLProgram::GLProgram(std::string vs_s, std::string ps_s)
 
     for (i = 0; i < _program; i++)
     {
-        glGetActiveAttrib(_program, (GLuint)i, bufSize, &length, &size, &type, name);
+        glGetActiveAttrib(_program, (GLuint)i, buf_size, &length, &size, &type, name);
 
         printf("Attribute #%d Type: %u Name: %s\n", i, type, name);
     }
@@ -74,7 +73,7 @@ GLProgram::GLProgram(std::string vs_s, std::string ps_s)
 
     for (i = 0; i < count; i++)
     {
-        glGetActiveUniform(_program, (GLuint)i, bufSize, &length, &size, &type, name);
+        glGetActiveUniform(_program, (GLuint)i, buf_size, &length, &size, &type, name);
 
         printf("Uniform #%d Type: %u Name: %s\n", i, type, name);
     }
@@ -83,8 +82,8 @@ GLProgram::GLProgram(std::string vs_s, std::string ps_s)
 GLProgram::~GLProgram()
 {
     glDeleteProgram(_program);
-    glDeleteShader(_vertexShader);
-    glDeleteShader(_fragmentShader);
+    glDeleteShader(_vertex_shader);
+    glDeleteShader(_fragment_shader);
 }
 
 void GLProgram::activate()
@@ -93,21 +92,21 @@ void GLProgram::activate()
     ShaderProgram::activate();
 }
 
-std::shared_ptr<TextureUniform> GLProgram::createTextureUniform(std::string name)
+std::shared_ptr<TextureUniform> GLProgram::create_texture_uniform(std::string name)
 {
     auto uniform = std::make_shared<GLTextureUniform>(std::static_pointer_cast<GLProgram>(shared_from_this()), name);
     _uniforms.push_back(uniform);
     return uniform;
 }
 
-std::shared_ptr<Mat3Uniform> GLProgram::createMat3Uniform(std::string name)
+std::shared_ptr<Mat3Uniform> GLProgram::create_mat3_uniform(std::string name)
 {
     auto uniform = std::make_shared<GLMat3Uniform>(std::static_pointer_cast<GLProgram>(shared_from_this()), name);
     _uniforms.push_back(uniform);
     return uniform;
 }
 
-std::shared_ptr<Vec2Uniform> GLProgram::createVec2Uniform(std::string name)
+std::shared_ptr<Vec2Uniform> GLProgram::create_vec2_uniform(std::string name)
 {
     auto uniform = std::make_shared<GLVec2Uniform>(std::static_pointer_cast<GLProgram>(shared_from_this()), name);
     _uniforms.push_back(uniform);
@@ -129,12 +128,12 @@ void GLTextureUniform::activate()
 
 GLTextureUniform::GLTextureUniform(const std::shared_ptr<GLProgram>& program, std::string name)
 {
-    _location = glGetUniformLocation(program->getProgramId(), name.data());
+    _location = glGetUniformLocation(program->get_program_ID(), name.data());
 }
 
 GLMat3Uniform::GLMat3Uniform(const std::shared_ptr<GLProgram>& program, std::string name)
 {
-    _location = glGetUniformLocation(program->getProgramId(), name.data());
+    _location = glGetUniformLocation(program->get_program_ID(), name.data());
 }
 
 void GLMat3Uniform::activate()
@@ -144,7 +143,7 @@ void GLMat3Uniform::activate()
 
 GLVec2Uniform::GLVec2Uniform(const std::shared_ptr<GLProgram>& program, std::string name)
 {
-    _location = glGetUniformLocation(program->getProgramId(), name.data());
+    _location = glGetUniformLocation(program->get_program_ID(), name.data());
 }
 
 void GLVec2Uniform::activate()

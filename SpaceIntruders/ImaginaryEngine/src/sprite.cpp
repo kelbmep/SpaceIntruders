@@ -1,4 +1,5 @@
 #include <sprite.hpp>
+#include <engine.hpp>
 #include <bitmap.hpp>
 #include <render.hpp>
 #include <window.hpp>
@@ -10,7 +11,7 @@ Sprite::Sprite(const Engine& engine, std::string path)
 {
     Bitmap bitmap(path);
 
-    _contentSize = bitmap.get_size();
+    _content_size = bitmap.get_size();
 
     MeshData data;
 
@@ -38,26 +39,26 @@ Sprite::Sprite(const Engine& engine, std::string path)
     data.indexes.emplace_back(1);
     data.indexes.emplace_back(2);
 
-    _vertexBuffer = engine.get_render().create_vertex_buffer(std::move(data));
+    _vertex_buffer = engine.get_render().create_vertex_buffer(std::move(data));
     _program = engine.get_render().create_program("draw");
 
-    _textureUniform = _program->createTextureUniform("uTexture");
-    _textureUniform->texture = engine.get_render().create_texture(std::move(bitmap));
+    _texture_uniform = _program->create_texture_uniform("uTexture");
+    _texture_uniform->texture = engine.get_render().create_texture(std::move(bitmap));
 
-    _screenSizeUniform = _program->createVec2Uniform("uScreenSize");
-    _transformUniform = _program->createMat3Uniform("uTransform");
+    _screen_size_uniform = _program->create_vec2_uniform("uScreenSize");
+    _transform_uniform = _program->create_mat3_uniform("uTransform");
 }
 
 void Sprite::visitSelf()
 {
     const auto& win = _engine.get_window();
-    _screenSizeUniform->value.x = win.get_width();
-    _screenSizeUniform->value.y = win.get_height();
+    _screen_size_uniform->value.x = (float)win.get_width();
+    _screen_size_uniform->value.y = (float)win.get_height();
 
-    _transformUniform->value = this->get_transform();
+    _transform_uniform->value = this->get_transform();
 
     Render::Command command;
     command.program = _program;
-    command.vertexBuffer = _vertexBuffer;
+    command.vertex_buffer = _vertex_buffer;
     _engine.get_render().add_command(std::move(command));
 }

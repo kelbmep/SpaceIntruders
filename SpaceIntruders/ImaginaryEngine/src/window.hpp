@@ -3,6 +3,7 @@
 #include <memory>
 
 class Render;
+
 class Window
 {
 public:
@@ -19,6 +20,7 @@ public:
 	{
 		return _height;
 	}
+	
 	virtual void update() = 0;
 	virtual void swap() = 0;
 	virtual std::unique_ptr<Render> create_render() = 0;

@@ -38,9 +38,9 @@ public:
     virtual ~ShaderProgram() = default;
     virtual void activate();
 
-    virtual std::shared_ptr<TextureUniform> createTextureUniform(std::string) = 0;
-    virtual std::shared_ptr<Mat3Uniform> createMat3Uniform(std::string) = 0;
-    virtual std::shared_ptr<Vec2Uniform> createVec2Uniform(std::string) = 0;
+    virtual std::shared_ptr<TextureUniform> create_texture_uniform(std::string) = 0;
+    virtual std::shared_ptr<Mat3Uniform> create_mat3_uniform(std::string) = 0;
+    virtual std::shared_ptr<Vec2Uniform> create_vec2_uniform(std::string) = 0;
 
 protected:
     std::vector<std::shared_ptr<Uniform>> _uniforms;

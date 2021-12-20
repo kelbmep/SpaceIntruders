@@ -1,23 +1,10 @@
 #pragma once
 
-/*#include <engine.hpp>
-
-class Render
-{
-public:
-    virtual ~Render() = default;
-    virtual void draw() = 0;
-    
-protected:
-    std::vector<Engine::VertexTriangle> _picture;
-};*/
-
-//#include <vector>
-//#include <memory>
-//#include <string>
 #include <engine.hpp>
 #include <meshData.hpp>
 #include <bitmap.hpp>
+#include <optional>
+#include <glm/glm.hpp>
 
 class VertexBuffer;
 class ShaderProgram;
@@ -30,8 +17,17 @@ public:
 
     struct Command
     {
-        std::shared_ptr<VertexBuffer> vertexBuffer;
+        std::shared_ptr<VertexBuffer> vertex_buffer;
         std::shared_ptr<ShaderProgram> program;
+
+        struct sub_t
+        {
+            size_t num;
+            size_t offset;
+        };
+
+        std::optional<sub_t> sub;
+        std::optional<glm::vec4> scissor;
     };
 
     void add_command(Command command) const
@@ -40,7 +36,6 @@ public:
     }
 
     virtual void draw() = 0;
-    virtual void draw(size_t, size_t) = 0;
 
     virtual std::shared_ptr<VertexBuffer> create_vertex_buffer(MeshData) const = 0;
     virtual std::shared_ptr<ShaderProgram> create_program(std::string) const = 0;

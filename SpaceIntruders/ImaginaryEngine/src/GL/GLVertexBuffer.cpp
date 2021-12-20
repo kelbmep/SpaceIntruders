@@ -47,7 +47,7 @@ void GLVertexBuffer::draw()
 void GLVertexBuffer::draw(size_t count, size_t pos)
 {
     glBindVertexArray(_VAO);
-    glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, reinterpret_cast<void*>(pos));
+    glDrawElements(GL_TRIANGLES, (GLsizei)count, GL_UNSIGNED_INT, reinterpret_cast<void*>(pos));
 }
 
 GLVertexBuffer::~GLVertexBuffer()

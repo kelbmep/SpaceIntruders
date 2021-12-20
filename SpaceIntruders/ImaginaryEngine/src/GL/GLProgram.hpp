@@ -11,15 +11,15 @@ public:
     GLProgram(std::string, std::string);
     ~GLProgram() override;
 
-    std::shared_ptr<TextureUniform> createTextureUniform(std::string) override;
-    std::shared_ptr<Mat3Uniform> createMat3Uniform(std::string) override;
-    std::shared_ptr<Vec2Uniform> createVec2Uniform(std::string) override;
+    std::shared_ptr<TextureUniform> create_texture_uniform(std::string) override;
+    std::shared_ptr<Mat3Uniform> create_mat3_uniform(std::string) override;
+    std::shared_ptr<Vec2Uniform> create_vec2_uniform(std::string) override;
 
     void activate() override;
-    uint32_t getProgramId() const { return _program; }
+    uint32_t get_program_ID() const { return _program; }
 protected:
-    uint32_t _vertexShader;
-    uint32_t _fragmentShader;
+    uint32_t _vertex_shader;
+    uint32_t _fragment_shader;
     uint32_t _program;
 };
 

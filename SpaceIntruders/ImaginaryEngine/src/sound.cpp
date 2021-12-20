@@ -1,10 +1,9 @@
 #include <sound.hpp>
 #include <stdexcept>
-#include <vector>
 
-Sound::Sound(std::string file_name, bool is_loop, float volume): _isLoop(is_loop)
+Sound::Sound(std::string file_name, bool is_loop, float volume): _is_loop(is_loop)
 {
-	SDL_RWops* file = SDL_RWFromFile(file_name.data(), "rb");
+	auto* file = SDL_RWFromFile(file_name.data(), "rb");
 	
 	if (file == nullptr)
 	{
@@ -26,7 +25,7 @@ Sound::Sound(std::string file_name, bool is_loop, float volume): _isLoop(is_loop
 
 	uint32_t audio_len = 0;
 
-	SDL_AudioSpec* audio_spec = SDL_LoadWAV_RW(file, 1, &_audio_spec_from_file, &_data, &audio_len);
+	auto* audio_spec = SDL_LoadWAV_RW(file, 1, &_audio_spec_from_file, &_data, &audio_len);
 	
 	_file_len = audio_len;
 	
@@ -59,7 +58,7 @@ bool Sound::is_playing()
 	return _state == State::Play;
 }
 
-SDL_AudioSpec Sound::get_AudioFormat() const
+SDL_AudioSpec Sound::get_audio_format() const
 {
 	return _audio_spec_from_file;
 }

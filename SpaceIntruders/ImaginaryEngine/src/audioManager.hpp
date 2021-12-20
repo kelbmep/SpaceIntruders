@@ -1,16 +1,13 @@
 #pragma once
 
-#include <cstdint>
-#include <memory>
 #include <sound.hpp>
 #include <vector>
-#include <string>
 
 class AudioManager 
 {
 public:
 	AudioManager();
-	std::shared_ptr<Sound> createSound(std::string, bool, float) const;
+	std::shared_ptr<Sound> create_sound(std::string, bool, float) const;
 	void update();
 private:
 	SDL_AudioDeviceID _audio_device;

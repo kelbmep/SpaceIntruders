@@ -32,9 +32,9 @@ private:
 	uint8_t* _data = nullptr;
 
 	SDL_AudioSpec _audio_spec_from_file{};
-	SDL_AudioSpec get_AudioFormat() const;
+	SDL_AudioSpec get_audio_format() const;
 	
-	bool _isLoop = false;
+	bool _is_loop = false;
 
 	float _volume = 0.5;
 };

@@ -12,10 +12,10 @@ public:
         explicit color(std::uint32_t rgba) : _rgba(rgba) {}
         color(glm::vec4 color)
         {
-            this->setColor(color);
+            this->set_color(color);
         }
 
-        glm::vec4 getColor() const
+        glm::vec4 get_color() const
         {
             std::uint32_t r = (_rgba & 0x000000FF) >> 0;
             std::uint32_t g = (_rgba & 0x0000FF00) >> 8;
@@ -25,7 +25,7 @@ public:
             return glm::vec4(r, g, b, a) / 255.0f;
         }
 
-        void setColor(glm::vec4 color)
+        void set_color(glm::vec4 color)
         {
             assert(color.r <= 1 && color.r >= 0);
             assert(color.g <= 1 && color.g >= 0);
@@ -40,12 +40,12 @@ public:
             _rgba = a << 24 | b << 16 | g << 8 | r;
         }
 
-        uint32_t getRgba() const
+        uint32_t get_rgba() const
         {
             return _rgba;
         }
 
-        void setRgba(uint32_t rgba)
+        void set_rgba(uint32_t rgba)
         {
             _rgba = rgba;
         }
