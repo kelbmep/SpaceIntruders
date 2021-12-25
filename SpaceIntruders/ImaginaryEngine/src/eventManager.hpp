@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <string>
 
 class EventManager {
 public:
@@ -30,10 +31,28 @@ public:
 		KeyType type;
 	};
 
+	enum class MouseButton
+	{
+		Left,
+		Right,
+		Middle
+	};
+
 	struct MouseEvent
 	{
 		int x, y;
 		KeyType type;
+		MouseButton button;
+	};
+
+	struct MouseMoveEvent
+	{
+		int x, y;
+	};
+
+	struct TextInputEvent 
+	{
+		std::string text;
 	};
 
 	struct QuitEvent {};
@@ -43,6 +62,8 @@ public:
 		virtual void handle_event(KeyEvent) {};
 		virtual void handle_event(QuitEvent) {};
 		virtual void handle_event(MouseEvent) {};
+		virtual void handle_event(MouseMoveEvent) {};
+		virtual void handle_event(TextInputEvent) {};
 	};
 
 	template<typename T>

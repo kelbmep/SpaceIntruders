@@ -12,8 +12,8 @@ UIManager::UIManager(const Engine& engine) : _engine{ engine }
 	ImGuiIO& io = ImGui::GetIO();
 	io.BackendPlatformName = "custom_micro_engine";
 
-	//io.KeyMap[ImGuiKey_A] = static_cast<size_t>(EventManager::KeyCode::A);
-	//rkfdbib
+	io.KeyMap[ImGuiKey_A] = static_cast<size_t>(EventManager::KeyCode::A);
+	
 	io.RenderDrawListsFn = nullptr;
 
 	auto width = 0;
@@ -21,10 +21,9 @@ UIManager::UIManager(const Engine& engine) : _engine{ engine }
 	unsigned char* dataPtr;
 	io.Fonts->GetTexDataAsRGBA32(&dataPtr, &width, &height);
 	std::vector<unsigned char> image(dataPtr, dataPtr + (width * height * 4));
-	
+
 	Bitmap bitmap(4, std::move(image), glm::vec2{ width, height });
 
-	//_vertexBuffer = engine.get_render().create_vertex_buffer(std::move(data));
 	_program = _engine.get_render().create_program("draw");
 
 	_texture_uniform = _program->create_texture_uniform("uTexture");
@@ -34,13 +33,53 @@ UIManager::UIManager(const Engine& engine) : _engine{ engine }
 	_transform_uniform = _program->create_mat3_uniform("uTransform");
 
 	_command.program = _program;
+
+	_engine.get_event_manager().add_delegate(this);
+}
+
+void UIManager::handle_event(EventManager::MouseEvent e)
+{
+	if (e.button == EventManager::MouseButton::Left)
+	{
+		_isLeft = (e.type == EventManager::KeyType::KeyDown);
+	}
+
+	if (e.button == EventManager::MouseButton::Right)
+	{
+		_isRight = (e.type == EventManager::KeyType::KeyDown);
+	}
+
+	if (e.button == EventManager::MouseButton::Middle)
+	{
+		_isMiddle = (e.type == EventManager::KeyType::KeyDown);
+	}
+
+	_mousePos.x = (float)e.x;
+	_mousePos.y = (float)e.y;
+}
+
+void UIManager::handle_event(EventManager::TextInputEvent e)
+{
+	ImGuiIO& io = ImGui::GetIO();
+	io.AddInputCharactersUTF8(e.text.data());
+}
+
+void UIManager::handle_event(EventManager::MouseMoveEvent e)
+{
+	_mousePos.x = (float)e.x;
+	_mousePos.y = (float)e.y;
 }
 
 void UIManager::visit()
 {
 	ImGuiIO& io = ImGui::GetIO();
-
 	io.DisplaySize = ImVec2(float(_engine.get_window_width()), float(_engine.get_window_height()));
+
+	io.MousePos = { _mousePos.x, _mousePos.y };
+
+	io.MouseDown[0] = _isLeft;
+	io.MouseDown[1] = _isRight;
+	io.MouseDown[2] = _isMiddle;
 
 	ImGui::NewFrame();
 
@@ -74,5 +113,26 @@ void UIManager::visit()
 		auto vertexBuffer = _engine.get_render().create_vertex_buffer(std::move(meshData));
 
 		_command.vertex_buffer = std::move(vertexBuffer);
+
+		_screen_size_uniform->value.x = _engine.get_window_width() / 1.0;
+		_screen_size_uniform->value.y = _engine.get_window_height() / 1.0;
+
+		_transform_uniform->value = glm::mat3(1.0f);
+
+		size_t offset = 0;
+		for (int cmd_i = 0; cmd_i < cmd_list->CmdBuffer.Size; cmd_i++)
+		{
+			const ImDrawCmd* pcmd = &cmd_list->CmdBuffer[cmd_i];
+
+			_command.sub.emplace();
+			_command.sub->num = pcmd->ElemCount;
+			_command.sub->offset = offset * sizeof(std::uint32_t);
+
+			_command.scissor = glm::vec4(pcmd->ClipRect.x, pcmd->ClipRect.y, pcmd->ClipRect.z, pcmd->ClipRect.w);
+
+			_engine.get_render().add_command(_command);
+
+			offset += pcmd->ElemCount;
+		}
 	}
 }

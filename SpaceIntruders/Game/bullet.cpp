@@ -18,7 +18,7 @@ void Bullet::visitSelf()
 
     _total_time += delta.count();
     
-    if (_total_time >= 0.5f)
+    if (_total_time >= 1.5f)
     {
         //this->remove_from_parent();
         return;

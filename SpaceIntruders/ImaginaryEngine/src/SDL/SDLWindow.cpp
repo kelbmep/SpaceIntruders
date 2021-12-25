@@ -88,13 +88,37 @@ void SDLWindow::update()
         }
         event_manager.invoke_event(EventManager::KeyEvent{ code, type });
     }
-    else if ((e.type == SDL_MOUSEBUTTONDOWN || e.type == SDL_MOUSEBUTTONUP) && e.button.button == SDL_BUTTON_LEFT)
+    else if (e.type == SDL_MOUSEBUTTONDOWN || e.type == SDL_MOUSEBUTTONUP)
     {
         auto type = EventManager::KeyType::KeyUp;
         if (e.type == SDL_MOUSEBUTTONDOWN)
             type = EventManager::KeyType::KeyDown;
 
-        event_manager.invoke_event(EventManager::MouseEvent{ e.button.x, e.button.y, type });
+        EventManager::MouseButton button;
+
+        switch (e.button.button)
+        {
+        case SDL_BUTTON_LEFT:
+            button = EventManager::MouseButton::Left;
+            break;
+        case SDL_BUTTON_RIGHT:
+            button = EventManager::MouseButton::Right;
+            break;
+        case SDL_BUTTON_MIDDLE:
+            button = EventManager::MouseButton::Middle;
+            break;
+        default:
+            break;
+        }
+        event_manager.invoke_event(EventManager::MouseEvent{ e.button.x, e.button.y, type, button});
+    }
+    else if (e.type == SDL_MOUSEMOTION)
+    {
+        event_manager.invoke_event(EventManager::MouseMoveEvent{ e.button.x, e.button.y });
+    }
+    else if (e.type == SDL_TEXTINPUT)
+    {
+        event_manager.invoke_event(EventManager::TextInputEvent{ e.text.text });
     }
 }
 

@@ -72,7 +72,10 @@ void GLRender::draw()
 				gl_program->activate();
 				if (command.scissor)
 				{
-					glScissor((GLint)command.scissor->x, (GLint)command.scissor->y, (GLint)command.scissor->z, (GLsizei)command.scissor->w);
+					glScissor((GLint)command.scissor->x,
+							  (GLint)(_engine.get_window_height() - command.scissor->w),
+							  (GLsizei)(command.scissor->z - command.scissor->x),
+							  (GLsizei)(command.scissor->w - command.scissor->y));
 				}
 				else
 				{
@@ -110,4 +113,9 @@ std::shared_ptr<ShaderProgram> GLRender::create_program(std::string name) const
 std::shared_ptr<Texture> GLRender::create_texture(Bitmap bitmap) const
 {
 	return std::make_shared<GLTexture>(std::move(bitmap));
+}
+
+std::shared_ptr<ParticleBuffer> GLRender::create_particle_buffer(std::vector <ParticleBuffer::ParticleData> data) const
+{
+	return std::make_shared<GLParticleBuffer>(std::move(data));
 }
