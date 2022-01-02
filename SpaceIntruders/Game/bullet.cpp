@@ -5,7 +5,7 @@
 Bullet::Bullet(const Engine& engine, const glm::vec2 &speed) : _speed(speed)
 {
     _bullet = std::make_shared<Sprite>(engine, "../../../../SpaceIntruders/ImaginaryEngine/src/img/tank_bullet.png");
-    this->set_scale(glm::vec2(1.5f));
+    _bullet->set_scale(glm::vec2(1.5f));
     this->add_node(_bullet);
     _prev_time = std::chrono::high_resolution_clock::now();
 }
@@ -26,9 +26,4 @@ void Bullet::visitSelf()
     
     set_position(get_position() + delta.count() + 3.0f * _speed);
     set_rotation(glm::degrees(glm::orientedAngle(glm::vec2(0.0f, -1.0f), glm::normalize(_speed))));
-    //Node::visitSelf();
-}
-
-Bullet::~Bullet()
-{
 }

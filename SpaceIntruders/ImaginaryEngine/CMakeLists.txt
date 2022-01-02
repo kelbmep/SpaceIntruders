@@ -17,7 +17,7 @@ add_library(ImaginaryEngine STATIC src/engine.cpp src/engine.hpp src/window.hpp
 			src/sound.cpp src/audioManager.cpp src/audioManager.hpp src/button.hpp 
 			src/button.cpp src/UIManager.hpp src/UIManager.cpp src/particleBuffer.cpp 
 			src/particleBuffer.hpp src/GL/GLParticleBuffer.cpp src/GL/GLParticleProgram.hpp 
-			src/GL/GLParticleProgram.cpp src/particleEmitter.cpp src/particleEmitter.hpp)
+			src/GL/GLParticleProgram.cpp src/particleEmitter.cpp src/particleEmitter.hpp "src/playlist.hpp" "src/playlist.cpp" "src/utilities/keycodes.hpp")
 set_target_properties(ImaginaryEngine PROPERTIES
     CXX_STANDARD 17
     CXX_STANDARD_REQUIRED YES

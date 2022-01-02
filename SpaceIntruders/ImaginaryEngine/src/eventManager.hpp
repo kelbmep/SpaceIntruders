@@ -2,61 +2,48 @@
 
 #include <vector>
 #include <string>
+#include <utilities/keycodes.hpp>
+
+enum class KeyType
+{
+	KeyDown,
+	KeyUp
+};
+
+struct KeyEvent
+{
+	KeyCode key;
+	KeyType type;
+};
+
+enum class MouseButton
+{
+	Left,
+	Right,
+	Middle
+};
+
+struct MouseEvent
+{
+	int x, y;
+	KeyType type;
+	MouseButton button;
+};
+
+struct MouseMoveEvent
+{
+	int x, y;
+};
+
+struct TextInputEvent
+{
+	std::string text;
+};
+
+struct QuitEvent {};
 
 class EventManager {
 public:
-
-	enum class KeyCode
-	{
-		Up,
-		Down,
-		Left,
-		Right,
-		A,
-		D,
-		Space,
-		Escape,
-		Unknown
-	};
-
-	enum class KeyType
-	{
-		KeyDown,
-		KeyUp
-	};
-
-	struct KeyEvent 
-	{
-		KeyCode key;
-		KeyType type;
-	};
-
-	enum class MouseButton
-	{
-		Left,
-		Right,
-		Middle
-	};
-
-	struct MouseEvent
-	{
-		int x, y;
-		KeyType type;
-		MouseButton button;
-	};
-
-	struct MouseMoveEvent
-	{
-		int x, y;
-	};
-
-	struct TextInputEvent 
-	{
-		std::string text;
-	};
-
-	struct QuitEvent {};
-	
 	struct Delegate
 	{
 		virtual void handle_event(KeyEvent) {};

@@ -63,6 +63,27 @@ SDL_AudioSpec Sound::get_audio_format() const
 	return _audio_spec_from_file;
 }
 
+float Sound::get_volume() const
+{
+	return _volume;
+}
+
+void Sound::set_volume(float vol)
+{
+	if (vol < 0)
+	{
+		_volume = 0.0;
+	}
+	else if (vol > 1)
+	{
+		_volume = 1.0;
+	}
+	else
+	{
+		_volume = vol;
+	}
+}
+
 Sound::~Sound()
 {
 	SDL_FreeWAV(_data);

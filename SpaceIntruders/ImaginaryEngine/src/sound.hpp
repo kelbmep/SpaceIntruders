@@ -24,6 +24,9 @@ public:
 
 	State _state = State::Pause;
 
+	float get_volume() const;
+	void set_volume(float);
+
 	friend class AudioManager;
 private:
 	size_t _file_len = 0;
@@ -36,5 +39,5 @@ private:
 	
 	bool _is_loop = false;
 
-	float _volume = 0.5;
+	float _volume = 0.5f;
 };

@@ -16,8 +16,7 @@ public:
 	
 	~Tank();
 	
-	void handle_event(EventManager::QuitEvent);
-	void handle_event(EventManager::KeyEvent);
+	void handle_event(KeyEvent) override;
 private:
 	const Engine& _engine;
 	

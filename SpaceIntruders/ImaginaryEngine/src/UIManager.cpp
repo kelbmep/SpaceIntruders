@@ -12,62 +12,87 @@ UIManager::UIManager(const Engine& engine) : _engine{ engine }
 	ImGuiIO& io = ImGui::GetIO();
 	io.BackendPlatformName = "custom_micro_engine";
 
-	io.KeyMap[ImGuiKey_A] = static_cast<size_t>(EventManager::KeyCode::A);
-	
+	io.KeyMap[ImGuiKey_Tab] = static_cast<size_t>(KeyCode::TAB);
+	io.KeyMap[ImGuiKey_LeftArrow] = static_cast<size_t>(KeyCode::LEFT);
+	io.KeyMap[ImGuiKey_RightArrow] = static_cast<size_t>(KeyCode::RIGHT);
+	io.KeyMap[ImGuiKey_UpArrow] = static_cast<size_t>(KeyCode::UP);
+	io.KeyMap[ImGuiKey_DownArrow] = static_cast<size_t>(KeyCode::DOWN);
+	io.KeyMap[ImGuiKey_PageUp] = static_cast<size_t>(KeyCode::PAGEUP);
+	io.KeyMap[ImGuiKey_PageDown] = static_cast<size_t>(KeyCode::PAGEDOWN);
+	io.KeyMap[ImGuiKey_Home] = static_cast<size_t>(KeyCode::HOME);
+	io.KeyMap[ImGuiKey_End] = static_cast<size_t>(KeyCode::END);
+	io.KeyMap[ImGuiKey_Insert] = static_cast<size_t>(KeyCode::INSERT);
+	io.KeyMap[ImGuiKey_Delete] = static_cast<size_t>(KeyCode::DELETE);
+	io.KeyMap[ImGuiKey_Backspace] = static_cast<size_t>(KeyCode::BACKSPACE);
+	io.KeyMap[ImGuiKey_Space] = static_cast<size_t>(KeyCode::SPACE);
+	io.KeyMap[ImGuiKey_Enter] = static_cast<size_t>(KeyCode::RETURN);
+	io.KeyMap[ImGuiKey_Escape] = static_cast<size_t>(KeyCode::ESCAPE);
+	io.KeyMap[ImGuiKey_A] = static_cast<size_t>(KeyCode::A);
+	io.KeyMap[ImGuiKey_C] = static_cast<size_t>(KeyCode::C);
+	io.KeyMap[ImGuiKey_V] = static_cast<size_t>(KeyCode::V);
+	io.KeyMap[ImGuiKey_X] = static_cast<size_t>(KeyCode::X);
+	io.KeyMap[ImGuiKey_Y] = static_cast<size_t>(KeyCode::Y);
+	io.KeyMap[ImGuiKey_Z] = static_cast<size_t>(KeyCode::Z); 
+
 	io.RenderDrawListsFn = nullptr;
 
-	auto width = 0;
-	auto height = 0;
+	auto width = 0, height = 0;
 	unsigned char* dataPtr;
 	io.Fonts->GetTexDataAsRGBA32(&dataPtr, &width, &height);
 	std::vector<unsigned char> image(dataPtr, dataPtr + (width * height * 4));
 
 	Bitmap bitmap(4, std::move(image), glm::vec2{ width, height });
 
-	_program = _engine.get_render().create_program("draw");
+	_command.program = _engine.get_render().create_program("draw");
 
-	_texture_uniform = _program->create_texture_uniform("uTexture");
+	_texture_uniform = _command.program->create_texture_uniform("uTexture");
 	_texture_uniform->texture = _engine.get_render().create_texture(std::move(bitmap));
 
-	_screen_size_uniform = _program->create_vec2_uniform("uScreenSize");
-	_transform_uniform = _program->create_mat3_uniform("uTransform");
-
-	_command.program = _program;
+	_screen_size_uniform = _command.program->create_vec2_uniform("uScreenSize");
+	_transform_uniform = _command.program->create_mat3_uniform("uTransform");
 
 	_engine.get_event_manager().add_delegate(this);
 }
 
-void UIManager::handle_event(EventManager::MouseEvent e)
+void UIManager::handle_event(MouseEvent e)
 {
-	if (e.button == EventManager::MouseButton::Left)
+	if (e.button == MouseButton::Left)
 	{
-		_isLeft = (e.type == EventManager::KeyType::KeyDown);
+		_isLeft = (e.type == KeyType::KeyDown);
 	}
 
-	if (e.button == EventManager::MouseButton::Right)
+	if (e.button == MouseButton::Right)
 	{
-		_isRight = (e.type == EventManager::KeyType::KeyDown);
+		_isRight = (e.type == KeyType::KeyDown);
 	}
 
-	if (e.button == EventManager::MouseButton::Middle)
+	if (e.button == MouseButton::Middle)
 	{
-		_isMiddle = (e.type == EventManager::KeyType::KeyDown);
+		_isMiddle = (e.type == KeyType::KeyDown);
 	}
 
-	_mousePos.x = (float)e.x;
-	_mousePos.y = (float)e.y;
+	_mouse_pos.x = (float)e.x;
+	_mouse_pos.y = (float)e.y;
 }
 
-void UIManager::handle_event(EventManager::TextInputEvent e)
+void UIManager::handle_event(TextInputEvent e)
 {
 	ImGuiIO& io = ImGui::GetIO();
 	io.AddInputCharactersUTF8(e.text.data());
 }
 
-void UIManager::handle_event(EventManager::MouseMoveEvent e)
+void UIManager::handle_event(MouseMoveEvent e)
 {
-	_mousePos.x = (float)e.x;
-	_mousePos.y = (float)e.y;
+	_mouse_pos.x = (float)e.x;
+	_mouse_pos.y = (float)e.y;
+}
+
+void UIManager::handle_event(KeyEvent e)
+{
+	if (e.key == KeyCode::ESCAPE && e.type == KeyType::KeyUp)
+	{
+		_show_main_menu = !_show_main_menu;
+	}
 }
 
 void UIManager::visit()
@@ -75,7 +100,7 @@ void UIManager::visit()
 	ImGuiIO& io = ImGui::GetIO();
 	io.DisplaySize = ImVec2(float(_engine.get_window_width()), float(_engine.get_window_height()));
 
-	io.MousePos = { _mousePos.x, _mousePos.y };
+	io.MousePos = { _mouse_pos.x, _mouse_pos.y };
 
 	io.MouseDown[0] = _isLeft;
 	io.MouseDown[1] = _isRight;
@@ -83,8 +108,16 @@ void UIManager::visit()
 
 	ImGui::NewFrame();
 
-	static auto show_demo_window = false;
-	ImGui::ShowDemoWindow(&show_demo_window);
+	//ImGui::ShowDemoWindow(&_show_demo_window);
+	
+	if (_show_main_menu)
+	{
+		for (auto& menu_item : _menu_items)
+		{
+			menu_item->visit();
+		}
+	}
+
 	ImGui::Render();
 
 	auto drawData = ImGui::GetDrawData();
@@ -100,29 +133,30 @@ void UIManager::visit()
 	for (auto n = 0; n < drawData->CmdListsCount; n++)
 	{
 		const auto* cmd_list = drawData->CmdLists[n];
+		
 		auto vertex_data = reinterpret_cast<MeshData::Vertex*>(cmd_list->VtxBuffer.Data);
 		size_t vert_count = static_cast<size_t>(cmd_list->VtxBuffer.size());
 
 		const auto* indexes = cmd_list->IdxBuffer.Data;
 		size_t index_count = static_cast<size_t>(cmd_list->IdxBuffer.size());
 
-		MeshData meshData;
-		meshData.vertices = { vertex_data, vertex_data + vert_count };
-		meshData.indexes = { indexes, indexes + index_count };
+		MeshData mesh_data;
+		mesh_data.vertices = { vertex_data, vertex_data + vert_count };
+		mesh_data.indexes = { indexes, indexes + index_count };
 
-		auto vertexBuffer = _engine.get_render().create_vertex_buffer(std::move(meshData));
+		auto vertexBuffer = _engine.get_render().create_vertex_buffer(std::move(mesh_data));
 
 		_command.vertex_buffer = std::move(vertexBuffer);
 
-		_screen_size_uniform->value.x = _engine.get_window_width() / 1.0;
-		_screen_size_uniform->value.y = _engine.get_window_height() / 1.0;
+		_screen_size_uniform->value.x = _engine.get_window_width();
+		_screen_size_uniform->value.y = _engine.get_window_height();
 
 		_transform_uniform->value = glm::mat3(1.0f);
 
 		size_t offset = 0;
-		for (int cmd_i = 0; cmd_i < cmd_list->CmdBuffer.Size; cmd_i++)
+		for (auto cmd_i = 0; cmd_i < cmd_list->CmdBuffer.Size; cmd_i++)
 		{
-			const ImDrawCmd* pcmd = &cmd_list->CmdBuffer[cmd_i];
+			const auto* pcmd = &cmd_list->CmdBuffer[cmd_i];
 
 			_command.sub.emplace();
 			_command.sub->num = pcmd->ElemCount;
@@ -135,4 +169,53 @@ void UIManager::visit()
 			offset += pcmd->ElemCount;
 		}
 	}
+}
+
+void UIManager::add_menu_item(std::shared_ptr<MenuItem> menu_item)
+{
+	_menu_items.push_back(std::move(menu_item));
+}
+
+void UIManager::remove_menu_item(const std::shared_ptr<MenuItem>& menu_item)
+{
+	auto it = std::find(std::begin(_menu_items), std::end(_menu_items), menu_item);
+	_menu_items.erase(it);
+}
+
+bool UIManager::get_show_main_menu()
+{
+	return _show_main_menu;
+}
+
+void Menu::Button::visit()
+{
+	if (ImGui::Button(_text.c_str()))
+	{
+		_is_clicked = true;
+	}
+}
+
+bool Menu::Button::get_is_clicked()
+{
+	return _is_clicked;
+}
+
+void Menu::Button::set_is_clicked(bool a)
+{
+	_is_clicked = a;
+}
+
+void Menu::Slider::visit()
+{
+	ImGui::SliderInt(_text.c_str(), _val, _min, _max);
+}
+
+void BeginItem::visit()
+{
+	ImGui::Begin(_text.c_str());
+}
+
+void EndItem::visit()
+{
+	ImGui::End();
 }

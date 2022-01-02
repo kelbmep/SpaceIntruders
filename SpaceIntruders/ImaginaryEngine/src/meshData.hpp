@@ -11,7 +11,7 @@ public:
     {
         glm::vec2 pos;
         glm::vec2 texcoord;
-        VertexBuffer::color color{ glm::vec4(1, 1, 1, 1) };
+        VertexBuffer::color color{ glm::vec4(1.0f, 1.0f, 1.0f, 1.0f) };
     };
 
     std::vector<Vertex> vertices;

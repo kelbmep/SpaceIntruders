@@ -46,7 +46,7 @@ void AudioManager::audio_callback(void* userdata, uint8_t* stream, int len)
 			{
 				amount = len;
 			}
-			SDL_MixAudioFormat(stream, sound->_data + sound->_pos, AUDIO_S16LSB, (Uint32)amount, (int)(sound->_volume * SDL_MIX_MAXVOLUME));
+			SDL_MixAudioFormat(stream, sound->_data + sound->_pos, AUDIO_S16LSB, (Uint32)amount, (int)(sound->get_volume() * SDL_MIX_MAXVOLUME));
 
 			sound->_pos += amount;
 

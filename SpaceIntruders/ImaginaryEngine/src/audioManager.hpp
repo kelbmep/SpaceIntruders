@@ -6,7 +6,7 @@
 class AudioManager 
 {
 public:
-	AudioManager();
+	explicit AudioManager();
 	std::shared_ptr<Sound> create_sound(std::string, bool, float) const;
 	void update();
 private:

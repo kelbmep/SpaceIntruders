@@ -6,8 +6,7 @@
 class Bullet : public Node
 {
 public:
-	explicit Bullet(const Engine&, const glm::vec2 &);
-	~Bullet();
+	explicit Bullet(const Engine&, const glm::vec2&);
 private:
 	std::shared_ptr<Sprite> _bullet;
 	

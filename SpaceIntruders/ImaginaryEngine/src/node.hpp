@@ -8,7 +8,7 @@
 class Node : public std::enable_shared_from_this<Node>
 {
 public:
-	virtual ~Node() = default;
+	virtual ~Node();
 	void visit();
 	void add_node(std::shared_ptr<Node>);
 	void remove_node(std::shared_ptr<Node>);

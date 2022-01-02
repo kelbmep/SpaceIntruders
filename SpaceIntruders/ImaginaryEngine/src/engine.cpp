@@ -3,6 +3,7 @@
 #include <SDL/SDLWindow.hpp>
 #include <audioManager.hpp>
 #include <UIManager.hpp>
+#include <playlist.hpp>
 
 Engine::Engine()
 {
@@ -16,18 +17,20 @@ void Engine::init(std::string window_name, size_t width, size_t height, int m)
     _window = std::make_unique<SDLWindow>(*this, window_name.data(), width, height, mode);
     _render = _window->create_render(); 
     _scene = std::make_shared<Node>();
-    _isActive = true;
     _audio_manager = std::make_unique<AudioManager>();
     
     _event_manager = std::make_unique<EventManager>();
     _event_manager->add_delegate(this);
     
     _ui = std::make_unique<UIManager>(*this);
+    _playlist = std::make_unique<Playlist>(*this);
+    
+    _is_active = true;
 }
 
-bool Engine::isActive()
+bool Engine::is_active()
 {
-    return _isActive;
+    return _is_active;
 }
 
 void Engine::update()
@@ -40,16 +43,18 @@ void Engine::update()
 
     _render->draw();
     _window->swap();
-}
-
-const Render& Engine::get_render() const
-{
-    return *_render;
+    
+    _playlist->update();
 }
 
 const Window& Engine::get_window() const
 {
     return *_window;
+}
+
+const Render& Engine::get_render() const
+{
+    return *_render;
 }
 
 const EventManager& Engine::get_event_manager() const
@@ -62,9 +67,9 @@ const AudioManager& Engine::get_audio_manager() const
     return *_audio_manager;
 }
 
-const UIManager& Engine::get_ui_manager() const
+std::shared_ptr<UIManager> Engine::get_ui_manager() const
 {
-    return *_ui;
+    return _ui;
 }
 
 std::shared_ptr<Node> Engine::get_scene() const
@@ -72,17 +77,18 @@ std::shared_ptr<Node> Engine::get_scene() const
     return _scene;
 }
 
-Engine::~Engine() = default;
-
-void Engine::handle_event(EventManager::QuitEvent ev)
+std::shared_ptr<Playlist> Engine::get_playlist() const
 {
-    _isActive = false;
+    return _playlist;
 }
 
-void Engine::handle_event(EventManager::KeyEvent ev)
+void Engine::handle_event(QuitEvent)
 {
-
+    _is_active = false;
 }
+
+void Engine::handle_event(KeyEvent e)
+{}
 
 size_t Engine::get_window_width() const
 {
@@ -93,3 +99,5 @@ size_t Engine::get_window_height() const
 {
 	return _window->get_height();
 }
+
+Engine::~Engine() = default;

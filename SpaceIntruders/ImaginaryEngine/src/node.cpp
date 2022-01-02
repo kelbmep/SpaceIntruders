@@ -7,7 +7,6 @@ void Node::add_node(std::shared_ptr<Node> n)
 	if (n != nullptr)
 	{
 		n->_parent = this;
-		//_nodes.push_back(std::move(n));
 		_nodes.insert(std::upper_bound(_nodes.begin(), _nodes.end(), n, [](std::shared_ptr<Node> left, std::shared_ptr<Node> right) {
 			return left->get_zOrder() < right->get_zOrder(); }), n);
 	}
@@ -127,4 +126,12 @@ int Node::get_zOrder() const
 void Node::set_zOrder(int z)
 {
 	_zOrder = z;
+}
+
+Node::~Node()
+{
+	for (auto &n : _nodes)
+	{
+		n->_parent = nullptr;
+	}
 }

@@ -49,15 +49,16 @@ void SDLWindow::update()
     SDL_PollEvent(&e);
     if (e.type == SDL_QUIT)
     {
-        event_manager.invoke_event(EventManager::QuitEvent{});
+        event_manager.invoke_event(QuitEvent{});
     }
     else if (e.type == SDL_KEYDOWN || e.type == SDL_KEYUP)
     {
-        auto type = EventManager::KeyType::KeyUp;
+        auto type = KeyType::KeyUp;
         if(e.type == SDL_KEYDOWN)
-            type = EventManager::KeyType::KeyDown;
-        auto code = EventManager::KeyCode::Unknown;
-
+            type = KeyType::KeyDown;
+        
+        event_manager.invoke_event(KeyEvent{ static_cast<KeyCode>(e.key.keysym.scancode), type });
+            /*      
         switch (e.key.keysym.sym)
         {
         case SDLK_UP:
@@ -81,44 +82,49 @@ void SDLWindow::update()
         case SDLK_SPACE:
             code = EventManager::KeyCode::Space;
             break;
+        case SDLK_9:
+            code = EventManager::KeyCode::n9;
+            break;
+        case SDLK_0:
+            code = EventManager::KeyCode::n0;
+            break;
         case SDLK_ESCAPE:
-            event_manager.invoke_event(EventManager::QuitEvent{});
             break;
         default: break;
         }
-        event_manager.invoke_event(EventManager::KeyEvent{ code, type });
+        event_manager.invoke_event(EventManager::KeyEvent{ code, type });*/
     }
     else if (e.type == SDL_MOUSEBUTTONDOWN || e.type == SDL_MOUSEBUTTONUP)
     {
-        auto type = EventManager::KeyType::KeyUp;
+        auto type = KeyType::KeyUp;
         if (e.type == SDL_MOUSEBUTTONDOWN)
-            type = EventManager::KeyType::KeyDown;
+            type = KeyType::KeyDown;
 
-        EventManager::MouseButton button;
+        MouseButton button;
 
         switch (e.button.button)
         {
         case SDL_BUTTON_LEFT:
-            button = EventManager::MouseButton::Left;
+            button = MouseButton::Left;
             break;
         case SDL_BUTTON_RIGHT:
-            button = EventManager::MouseButton::Right;
+            button = MouseButton::Right;
             break;
         case SDL_BUTTON_MIDDLE:
-            button = EventManager::MouseButton::Middle;
+            button = MouseButton::Middle;
             break;
         default:
             break;
         }
-        event_manager.invoke_event(EventManager::MouseEvent{ e.button.x, e.button.y, type, button});
+        event_manager.invoke_event(MouseEvent{ e.button.x, e.button.y, type, button});
     }
     else if (e.type == SDL_MOUSEMOTION)
     {
-        event_manager.invoke_event(EventManager::MouseMoveEvent{ e.button.x, e.button.y });
+        event_manager.invoke_event(MouseMoveEvent{ e.button.x, e.button.y });
     }
     else if (e.type == SDL_TEXTINPUT)
     {
-        event_manager.invoke_event(EventManager::TextInputEvent{ e.text.text });
+        event_manager.invoke_event(TextInputEvent{ e.text.text });
     }
 }
 

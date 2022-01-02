@@ -8,8 +8,8 @@
 
 Tank::Tank(const Engine& engine) : _engine{ engine }
 {
-    _shot = _engine.get_audio_manager().create_sound("../../../../SpaceIntruders/ImaginaryEngine/src/sound/Shot.wav", false, 0.25f);
-    _movement = _engine.get_audio_manager().create_sound("../../../../SpaceIntruders/ImaginaryEngine/src/sound/Movement.wav", true, 0.3f);
+    _shot = _engine.get_audio_manager().create_sound("../../../../SpaceIntruders/ImaginaryEngine/src/sound/Shot.wav", false, 0.6f);
+    _movement = _engine.get_audio_manager().create_sound("../../../../SpaceIntruders/ImaginaryEngine/src/sound/Movement.wav", true, 0.7f);
 
     _body = std::make_shared<Sprite>(_engine, "../../../../SpaceIntruders/ImaginaryEngine/src/img/tank_body.png");
     _tower = std::make_shared<Sprite>(_engine, "../../../../SpaceIntruders/ImaginaryEngine/src/img/tank_tower.png");
@@ -29,44 +29,39 @@ Tank::Tank(const Engine& engine) : _engine{ engine }
     _prev_time = std::chrono::high_resolution_clock::now();
 }
 
-void Tank::handle_event(EventManager::QuitEvent)
+void Tank::handle_event(KeyEvent e)
 {
-//    std::cout << "Iquit";
-}
-
-void Tank::handle_event(EventManager::KeyEvent e)
-{
-    if (e.key == EventManager::KeyCode::Up)
+    if (e.key == KeyCode::UP)
     {
-        _isUp = (e.type == EventManager::KeyType::KeyDown);
+        _isUp = (e.type == KeyType::KeyDown);
     }
 
-    if (e.key == EventManager::KeyCode::Down)
+    if (e.key == KeyCode::DOWN)
     {
-        _isDown = (e.type == EventManager::KeyType::KeyDown);
+        _isDown = (e.type == KeyType::KeyDown);
     }
 
-    if (e.key == EventManager::KeyCode::Left)
+    if (e.key == KeyCode::LEFT)
     {
-        _isLeft = (e.type == EventManager::KeyType::KeyDown);
+        _isLeft = (e.type == KeyType::KeyDown);
     }
 
-    if (e.key == EventManager::KeyCode::Right)
+    if (e.key == KeyCode::RIGHT)
     {
-        _isRight = (e.type == EventManager::KeyType::KeyDown);
+        _isRight = (e.type == KeyType::KeyDown);
     }
 
-    if (e.key == EventManager::KeyCode::A)
+    if (e.key == KeyCode::A)
     {
-        _isA = (e.type == EventManager::KeyType::KeyDown);
+        _isA = (e.type == KeyType::KeyDown);
     }
 
-    if (e.key == EventManager::KeyCode::D)
+    if (e.key == KeyCode::D)
     {
-        _isD = (e.type == EventManager::KeyType::KeyDown);
+        _isD = (e.type == KeyType::KeyDown);
     }
 
-    if (e.key == EventManager::KeyCode::Space && e.type == EventManager::KeyType::KeyUp)
+    if (e.key == KeyCode::SPACE && e.type == KeyType::KeyUp)
     {
         auto vector = glm::rotate(glm::vec2(0.0f, -1.0f), glm::radians(get_rotation() + _tower->get_rotation()));
         auto vector2 = glm::rotate(glm::vec2(0.0f, -1.0f), glm::radians(get_rotation()));
@@ -133,7 +128,7 @@ void Tank::visitSelf()
         set_rotation(get_rotation() - delta.count() * _turn_speed);
         _turn_speed -= delta.count() * 115.0f;
         
-        if (_turn_speed <= -0.1f)
+        if (_turn_speed <= 0.1f)
         {
             _turn_speed = 0.0f;
         }
@@ -143,7 +138,7 @@ void Tank::visitSelf()
         set_rotation(get_rotation() - delta.count() * _turn_speed);
         _turn_speed += delta.count() * 115.0f;
         
-        if (_turn_speed >= 0.1f)
+        if (_turn_speed >= -0.1f)
         {
             _turn_speed = 0.0f;
         }
@@ -211,8 +206,6 @@ void Tank::visitSelf()
         set_position(get_position() + glm::vec2{ 0, window_height } + 1.2f * glm::vec2{ 0, tank_length });
     else if (position_y > window_height + 0.6f * tank_length)
         set_position(get_position() - glm::vec2{ 0, window_height } - 1.2f * glm::vec2{ 0, tank_length });
-    
-    //Node::visitSelf();
 }
 
 Tank::~Tank()
