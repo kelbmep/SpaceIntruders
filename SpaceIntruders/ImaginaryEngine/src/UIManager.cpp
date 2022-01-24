@@ -1,6 +1,5 @@
 #include <UIManager.hpp>
 #include <shaderProgram.hpp>
-#include <render.hpp>
 #include <bitmap.hpp>
 #include <imgui.h>
 
@@ -50,6 +49,10 @@ UIManager::UIManager(const Engine& engine) : _engine{ engine }
 
 	_screen_size_uniform = _command.program->create_vec2_uniform("uScreenSize");
 	_transform_uniform = _command.program->create_mat3_uniform("uTransform");
+
+	_command.uniforms.push_back(_transform_uniform);
+	_command.uniforms.push_back(_screen_size_uniform);
+	_command.uniforms.push_back(_texture_uniform);
 
 	_engine.get_event_manager().add_delegate(this);
 }

@@ -39,6 +39,7 @@ public:
 
 	std::shared_ptr<ShaderProgram> create_program(std::string) const override;
 	std::shared_ptr<VertexBuffer> create_vertex_buffer(MeshData) const override;
+	std::shared_ptr<VertexBuffer> create_vertex_buffer(const VertexData&) const override;
 	std::shared_ptr<Texture> create_texture(Bitmap) const override;
 private:
 	std::shared_ptr<SDL_Window> _sdl_window;

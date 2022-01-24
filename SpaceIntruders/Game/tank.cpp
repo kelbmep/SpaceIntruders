@@ -6,13 +6,13 @@
 #include <../src/sprite.hpp>
 #include <../src/node.hpp>
 
-Tank::Tank(const Engine& engine) : _engine{ engine }
+Tank::Tank(Engine& engine) : Node(engine)
 {
-    _shot = _engine.get_audio_manager().create_sound("../../../../SpaceIntruders/ImaginaryEngine/src/sound/Shot.wav", false, 0.6f);
-    _movement = _engine.get_audio_manager().create_sound("../../../../SpaceIntruders/ImaginaryEngine/src/sound/Movement.wav", true, 0.7f);
+    _shot = _engine.get_audio_manager().create_sound("../../../../SpaceIntruders/ImaginaryEngine/res/Shot.wav", false, 0.6f);
+    _movement = _engine.get_audio_manager().create_sound("../../../../SpaceIntruders/ImaginaryEngine/res/Movement.wav", true, 0.7f);
 
-    _body = std::make_shared<Sprite>(_engine, "../../../../SpaceIntruders/ImaginaryEngine/src/img/tank_body.png");
-    _tower = std::make_shared<Sprite>(_engine, "../../../../SpaceIntruders/ImaginaryEngine/src/img/tank_tower.png");
+    _body = std::make_shared<Sprite>(_engine, "../../../../SpaceIntruders/ImaginaryEngine/res/tank_body.png");
+    _tower = std::make_shared<Sprite>(_engine, "../../../../SpaceIntruders/ImaginaryEngine/res/tank_tower.png");
     this->set_position(glm::vec2(_engine.get_window_width() * 0.5f,
                                  _engine.get_window_height() * 0.5f));
 

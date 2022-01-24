@@ -26,6 +26,6 @@ public:
 	std::unique_ptr<Render> create_render() override;
 private:
 	std::shared_ptr<SDL_Window> _window;
-	RenderMode _renderMode;
+	RenderMode _render_mode;
 	const Engine& _engine;
 };

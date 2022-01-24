@@ -9,6 +9,8 @@ class GLTexture : public Texture
 public:
     explicit GLTexture(Bitmap);
     void active();
+
+    uint32_t get_ID() const;
 private:
     uint32_t _ID;
 };

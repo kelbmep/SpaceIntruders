@@ -1,9 +1,10 @@
 #include <SDL/SDLWindow.hpp>
 #include <GL/GLRender.hpp>
 #include <SDL/SDLRender.hpp>
+#include <GL/GLHeaders.hpp>
 
-SDLWindow::SDLWindow(const Engine& engine, std::string name, size_t width, size_t height, RenderMode renderMode)
-    : Window(width, height), _engine(engine), _renderMode(renderMode)
+SDLWindow::SDLWindow(const Engine& engine, std::string name, size_t width, size_t height, RenderMode render_mode)
+    : Window(width, height), _engine(engine), _render_mode(render_mode)
 {
     SDL_version version = { 0, 0, 0 };
 
@@ -15,15 +16,21 @@ SDLWindow::SDLWindow(const Engine& engine, std::string name, size_t width, size_
     
     Uint32 windowFlags = SDL_WINDOW_SHOWN;
 
-    if (_renderMode == RenderMode::OpenGL)
+    if (_render_mode == RenderMode::OpenGL)
     {
         SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
         SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 
+#if GLES20
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+        windowFlags |= SDL_WINDOW_FULLSCREEN;
+#elif GL33
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
-
+#endif
         windowFlags |= SDL_WINDOW_OPENGL;
     }
 
@@ -130,19 +137,20 @@ void SDLWindow::update()
 
 std::unique_ptr<Render> SDLWindow::create_render()
 {
-    if (_renderMode == RenderMode::OpenGL)
+    if (_render_mode == RenderMode::OpenGL)
     {
         return std::make_unique<GLRender>(_engine, _window.get());
     }
     else
     {
-        return std::make_unique<SDLRender>(_engine, _window);
+        return nullptr;
+        //return std::make_unique<SDLRender>(_engine, _window);
     }
 }
 
 void SDLWindow::swap()
 {
-    if (_renderMode == RenderMode::OpenGL)
+    if (_render_mode == RenderMode::OpenGL)
     {
         SDL_GL_SwapWindow(_window.get());
     }

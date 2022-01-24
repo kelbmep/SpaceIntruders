@@ -1,8 +1,7 @@
 #pragma once 
 
 #include <vector>
-#include <glm/glm.hpp>
-#include <vertexBuffer.hpp>
+#include <utilities/general_functions.hpp>
 
 class MeshData
 {
@@ -11,7 +10,7 @@ public:
     {
         glm::vec2 pos;
         glm::vec2 texcoord;
-        VertexBuffer::color color{ glm::vec4(1.0f, 1.0f, 1.0f, 1.0f) };
+        utils::color color{ glm::vec4(1.0f) };
     };
 
     std::vector<Vertex> vertices;

@@ -4,8 +4,7 @@
 #include <audioManager.hpp>
 
 Playlist::Playlist(const Engine& engine) : _engine{ engine }
-{ 
-
+{
 }
 
 void Playlist::add_track(std::string file_path)

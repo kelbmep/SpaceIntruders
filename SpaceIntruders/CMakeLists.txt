@@ -3,14 +3,16 @@
 #
 cmake_minimum_required (VERSION 3.8)
 
-# Добавьте источник в исполняемый файл этого проекта.
-add_executable (SpaceIntruders "main.cpp" "Game/tank.cpp" "Game/tank.hpp" "Game/bullet.cpp" "Game/bullet.hpp")
+set(CMAKE_CXX_STANDARD 17)
 
-set_target_properties(SpaceIntruders PROPERTIES
-    CXX_STANDARD 17
-    CXX_STANDARD_REQUIRED YES
-    CXX_EXTENSIONS NO
-)
+# Добавьте источник в исполняемый файл этого проекта.
+set(GAME_SRC main.cpp Game/tank.cpp Game/tank.hpp Game/bullet.cpp Game/bullet.hpp)
+
+if(ANDROID)
+    add_library(SpaceIntruders SHARED ${GAME_SRC})
+else()
+    add_executable(SpaceIntruders ${GAME_SRC})
+endif()
 
 add_subdirectory("ImaginaryEngine")
 

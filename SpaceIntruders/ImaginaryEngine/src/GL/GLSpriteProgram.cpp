@@ -1,4 +1,4 @@
-#include <GL/GLDrawProgram.hpp>
+#include <GL/GLSpriteProgram.hpp>
 #include <fstream>
 #include <string>
 
@@ -14,8 +14,9 @@ std::string read_from_file(std::string file_path)
     return str_shader;
 }
 
-GLDrawProgram::GLDrawProgram()
-    : GLProgram(read_from_file("../../../../SpaceIntruders/ImaginaryEngine/src/shader_vert.vert"), 
+GLSpriteProgram::GLSpriteProgram()
+    : GLProgram(//(position, texCoord, color),
+    			read_from_file("../../../../SpaceIntruders/ImaginaryEngine/src/shader_vert.vert"),
 				read_from_file("../../../../SpaceIntruders/ImaginaryEngine/src/shader_frag.frag"))
 {
 

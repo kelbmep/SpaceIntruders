@@ -27,7 +27,12 @@ std::shared_ptr<ShaderProgram> SDLRender::create_program(std::string name) const
 	return nullptr;
 }
 
-std::shared_ptr<VertexBuffer> SDLRender::create_vertex_buffer(MeshData data) const
+std::shared_ptr<VertexBuffer> SDLRender::create_vertex_buffer(MeshData) const
+{
+	return nullptr;
+}
+
+std::shared_ptr<VertexBuffer> SDLRender::create_vertex_buffer(const VertexData&) const
 {
 	return nullptr;
 }

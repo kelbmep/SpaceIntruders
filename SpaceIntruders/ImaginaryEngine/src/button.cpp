@@ -2,7 +2,7 @@
 #include <engine.hpp>
 #include <sprite.hpp>
 
-Button::Button(const Engine& engine, std::string file_name)
+Button::Button(const Engine& engine, std::string file_name) : Node(engine)
 {
 	_button = std::make_shared<Sprite>(engine, file_name);
 	_button->set_scale(glm::vec2(0.1f));

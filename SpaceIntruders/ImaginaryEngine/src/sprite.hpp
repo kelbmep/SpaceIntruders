@@ -1,6 +1,7 @@
 #pragma once
 
 #include <node.hpp>
+#include <render.hpp>
 #include <vector>
 #include <string>
 
@@ -14,10 +15,11 @@ class Vec2Uniform;
 class Sprite : public Node {
 public:
 	explicit Sprite(const Engine&, std::string);
-protected:
+//protected:
 	void visitSelf() override;
 private:
-	const Engine& _engine;
+	//const Engine& _engine;
+	Render::Command _command;
 
 	std::shared_ptr<ShaderProgram> _program;
 	std::shared_ptr<VertexBuffer> _vertex_buffer;

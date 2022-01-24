@@ -12,14 +12,12 @@ class Sprite;
 class Tank : public EventManager::Delegate, public Node
 {
 public:
-	explicit Tank(const Engine&);
+	explicit Tank(Engine&);
 	
 	~Tank();
 	
 	void handle_event(KeyEvent) override;
 private:
-	const Engine& _engine;
-	
 	bool _isUp = false;
 	bool _isDown = false;
 	bool _isLeft = false;

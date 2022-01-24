@@ -2,7 +2,6 @@
 
 #include <eventManager.hpp>
 #include <node.hpp>
-#include <string>
 
 class Engine;
 class Sprite;

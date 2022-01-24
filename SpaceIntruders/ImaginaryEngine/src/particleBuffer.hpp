@@ -1,7 +1,8 @@
 #pragma once
 
-#include <glm/glm.hpp>
 #include <vertexBuffer.hpp>
+#include <utilities/general_functions.hpp>
+#include <glm/glm.hpp>
 
 class ParticleBuffer : public VertexBuffer
 {
@@ -10,8 +11,11 @@ public:
 	{
 		glm::vec2 pos;
 		glm::vec2 velocity;
-		color color;
+		utils::color color = glm::vec4{ 1.0 };
+		float phase = 0;
 	};
+
+	virtual void add_data(ParticleData) = 0;
 
 	~ParticleBuffer() = default;
 };

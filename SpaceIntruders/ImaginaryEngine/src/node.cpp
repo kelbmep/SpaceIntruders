@@ -1,26 +1,59 @@
 #include <node.hpp>
+#include <engine.hpp>
 #include <algorithm>
 #include <glm/gtx/matrix_transform_2d.hpp>
 
+Node::Node(const Engine& engine)
+	: _engine(engine)
+{}
+
 void Node::add_node(std::shared_ptr<Node> n)
+{
+	this->add_node(n, n->_zOrder);
+}
+
+void Node::add_node(std::shared_ptr<Node> n, int order)
 {
 	if (n != nullptr)
 	{
 		n->_parent = this;
-		_nodes.insert(std::upper_bound(_nodes.begin(), _nodes.end(), n, [](std::shared_ptr<Node> left, std::shared_ptr<Node> right) {
-			return left->get_zOrder() < right->get_zOrder(); }), n);
+		n->_zOrder = order;
+		if (!_nodes.empty())
+		{
+			auto it = std::upper_bound(_nodes.begin(), _nodes.end(), order, [](auto order, auto n)
+			{
+				return n->_zOrder > order;
+			});
+
+			_nodes.insert(it, std::move(n));
+		}
+		else
+		{
+			_nodes.push_back(std::move(n));
+		}
 	}
 }
 
 void Node::remove_node(std::shared_ptr<Node> n)
 {
-	auto it = std::find(_nodes.begin(), _nodes.end(), n);
-	_nodes.erase(it);
+	if (n != nullptr)
+	{
+		auto it = std::find(_nodes.begin(), _nodes.end(), n);
+
+		if (it != _nodes.end())
+		{
+			n->_parent = nullptr;
+			_nodes.erase(it);
+		}
+	}
 }
 
 void Node::remove_from_parent()
 {
-	_parent->remove_node(shared_from_this());
+	if (this->_parent != nullptr)
+	{
+		_parent->remove_node(shared_from_this());
+	}
 }
 
 Node* Node::get_parent()
@@ -30,16 +63,51 @@ Node* Node::get_parent()
 
 void Node::visit()
 {
-	auto bound = std::upper_bound(_nodes.begin(), _nodes.end(), this, [](Node* left, std::shared_ptr<Node> right) {
-		return left->get_zOrder() >= right->get_zOrder(); });
-	for (auto it = _nodes.begin(); it != bound; ++it)
+	if (_is_visible)
 	{
-		it->get()->visit();
+		auto it = std::begin(_nodes);
+
+		while (it != std::end(_nodes) && (*it)->get_zOrder() < 0)
+		{
+			it->get()->visit();
+			it++;
+		}
+
+		visitSelf();
+
+		if (_nodes.empty())
+			return;
+
+		while (it != std::end(_nodes))
+		{
+			auto help = _nodes.size();
+			it->get()->visit();
+			if (_nodes.size() < help)
+				return; 
+			it++;
+		}
 	}
-	this->visitSelf();
-	for (auto it = bound ; it != _nodes.end(); ++it)
+}
+
+void Node::reverse_visit()
+{
+	if (_is_visible)
 	{
-		it->get()->visit();
+		auto it = _nodes.rbegin();
+
+		while ((it != _nodes.rend()) && (*it)->_zOrder > 0)
+		{
+			it->get()->reverse_visit();
+			it++;
+		}
+
+		visitSelf();
+
+		while (it != _nodes.rend())
+		{
+			it->get()->reverse_visit();
+			it++;
+		}
 	}
 }
 
@@ -111,6 +179,11 @@ glm::mat3 Node::get_transform()
 const glm::vec2& Node::get_size() const
 {
 	return _content_size;
+}
+
+void Node::set_size(const glm::vec2 &size)
+{
+	_content_size = size;
 }
 
 std::vector<std::shared_ptr<Node>> Node::get_children()
