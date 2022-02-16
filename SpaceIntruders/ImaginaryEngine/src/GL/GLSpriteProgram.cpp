@@ -1,23 +1,11 @@
 #include <GL/GLSpriteProgram.hpp>
-#include <fstream>
 #include <string>
+#include <engine.hpp>
+#include <fileManager.hpp>
 
-std::string read_from_file(std::string file_path)
+GLSpriteProgram::GLSpriteProgram(const Engine& engine)
+    : GLProgram({"position", "texCoord", "color"},
+                engine.get_file_manager().resource_location("shader_vert.vert"),
+				engine.get_file_manager().resource_location("shader_frag.frag"))
 {
-	std::ifstream shader(file_path);
-	std::string str_shader, line;
-	while (getline(shader, line))
-	{
-		str_shader += line + "\n";
-	}
-	shader.close();
-    return str_shader;
-}
-
-GLSpriteProgram::GLSpriteProgram()
-    : GLProgram(//(position, texCoord, color),
-    			read_from_file("../../../../SpaceIntruders/ImaginaryEngine/src/shader_vert.vert"),
-				read_from_file("../../../../SpaceIntruders/ImaginaryEngine/src/shader_frag.frag"))
-{
-
 }

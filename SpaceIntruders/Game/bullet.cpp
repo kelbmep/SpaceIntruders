@@ -5,9 +5,10 @@
 Bullet::Bullet(const Engine& engine, const glm::vec2 &speed) 
     : Node(engine), _speed(speed)
 {
-    _bullet = std::make_shared<Sprite>(engine, "../../../../SpaceIntruders/ImaginaryEngine/res/tank_bullet.png");
+    _bullet = std::make_shared<Sprite>(engine, "tank_bullet.png");
     _bullet->set_scale(glm::vec2(1.5f));
     this->add_node(_bullet);
+    //this->schedule_update();
     _prev_time = std::chrono::high_resolution_clock::now();
 }
 

@@ -57,19 +57,22 @@ void Playlist::play_next()
 
 void Playlist::update()
 {
-	if (_previous)
+	if (!_songs.empty())
 	{
-		play_previous();
-		_previous = false;
-	}
-	else if (_next)
-	{
-		play_next();
-		_next = false;
-	}
-	if (_current_song.get()->_state == Sound::State::Stop)
-	{
-		play_next();
+		if (_previous)
+		{
+			play_previous();
+			_previous = false;
+		}
+		else if (_next)
+		{
+			play_next();
+			_next = false;
+		}
+		if (_current_song.get()->_state == Sound::State::Stop)
+		{
+			play_next();
+		}
 	}
 }
 

@@ -6,14 +6,14 @@
 
 class Engine;
 
-class PhysicalSprite : public Node
+class PhysicalSprite : public Sprite
 {
 public:
-	PhysicalSprite(Engine&, b2Body*, std::shared_ptr<Sprite>);
-	std::shared_ptr<Sprite> get_sprite() const;
+	PhysicalSprite(const Engine&, b2Body*, std::string);
+	b2Body* get_body() const;
 protected:
 	void visitSelf() override;
 private:
-	std::shared_ptr<Sprite> _sprite;
 	b2Body* _body;
+	float _angle = 0.0f;
 };

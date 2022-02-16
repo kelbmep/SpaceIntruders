@@ -3,27 +3,31 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <GL/GLHeaders.hpp>
 #include <iostream>
+#include <fstream>
 #include <string>
 
-GLProgram::GLProgram(/*std::initializer_list<const char*> attributes, */std::string vs_s, std::string ps_s)
-{/*
+GLProgram::GLProgram(std::initializer_list<const char*> attributes, std::string v, std::string p)
+{
+    std::string vs_s = read_from_file(v);
+    
     std::string vs_header =
 #if GLES20
-R"(
+    R"(
 #version 100
-#define VS_IN attribute;
-#define VS_OUT varying;
+#define VS_IN attribute
+#define VS_OUT varying
     )";
 #elif GL33
     R"(
-#version 330
-#define VS_IN in;
-#define VS_OUT out;
+#version 330 core
+#define VS_IN in
+#define VS_OUT out
     )";
 #endif
-    */
+
+    vs_s = vs_header + vs_s;
     const auto* vs = vs_s.c_str();
-    const auto* ps = ps_s.c_str();
+
     _vertex_shader = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(_vertex_shader, 1, &vs, nullptr);
     glCompileShader(_vertex_shader);
@@ -37,20 +41,32 @@ R"(
         glGetShaderInfoLog(_vertex_shader, 512, nullptr, info_log);
         std::cerr << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << info_log << std::endl;
     }
-    /*
+
+    std::string ps_s = read_from_file(p);
+    
     std::string ps_header =
 #if GLES20
-R"(
+    R"(
 #version 100
-#precision medium float
-#define PS_IN varying;
-#define PS_OUT gl_FragColor;
-#define TEXTURE2D texture;
+precision mediump float;
+#define PS_IN varying
+#define PS_OUT gl_FragColor
+#define TEXTURE2D texture2D
     )";
 #elif GL33
+    R"(
+#version 330 core
 
+#define PS_IN in
+#define TEXTURE2D texture
+
+out vec4 PS_OUT;
+)";
 #endif
-*/
+
+    ps_s = ps_header + ps_s;
+    const auto* ps = ps_s.c_str();
+
     _fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(_fragment_shader, 1, &ps, nullptr);
     glCompileShader(_fragment_shader);
@@ -65,8 +81,11 @@ R"(
 
     _program = glCreateProgram();
 
-  //  size_t index = 0;
-
+    size_t index = 0;
+    for(auto attribute : attributes)
+    {
+        glBindAttribLocation(_program, index++, attribute);
+    }
 
     glAttachShader(_program, _vertex_shader);
     glAttachShader(_program, _fragment_shader);
@@ -108,6 +127,18 @@ R"(
 
         printf("Uniform #%d Type: %u Name: %s\n", i, type, name);
     }
+}
+
+std::string GLProgram::read_from_file(std::string file_path)
+{
+    std::ifstream shader(file_path);
+    std::string str_shader, line;
+    while (getline(shader, line))
+    {
+        str_shader += line + "\n";
+    }
+    shader.close();
+    return str_shader;
 }
 
 GLProgram::~GLProgram()

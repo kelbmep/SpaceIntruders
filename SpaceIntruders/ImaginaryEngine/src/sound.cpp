@@ -3,11 +3,11 @@
 
 Sound::Sound(std::string file_name, bool is_loop, float volume): _is_loop(is_loop)
 {
-	auto* file = SDL_RWFromFile(file_name.data(), "rb");
+	auto* file = SDL_RWFromFile(file_name.c_str(), "rb");
 	
 	if (file == nullptr)
 	{
-		throw std::runtime_error("Cannot open file: " + std::string(file_name));
+		throw std::runtime_error("Cannot open file: " + file_name);
 	}
 	
 	if (volume < 0)

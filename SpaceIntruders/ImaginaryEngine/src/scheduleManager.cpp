@@ -1,6 +1,5 @@
 #include <scheduleManager.hpp>
-#include <utilities/general_functions.hpp>
-
+#include <iostream>
 ScheduleManager::ScheduleManager()
 {
     _prev_time = std::chrono::high_resolution_clock::now();
@@ -68,10 +67,14 @@ void ScheduleManager::schedule_update(handler_fun handler, size_t tag) const
 
 void ScheduleManager::stop(size_t tag) const
 {
+    std::cout << _handlers.size() << std::endl;
+    auto help = _handlers.size();
     _handlers.erase(std::remove_if(_handlers.begin(), _handlers.end(), [&](const HandlerStorage& cur_handler)
         {
             return cur_handler.tag == tag;
         }));
+    if (_handlers.size() < help)
+        return;
 }
 
 fseconds ScheduleManager::get_delta() const

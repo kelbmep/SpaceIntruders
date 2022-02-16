@@ -1,9 +1,7 @@
-# CMakeList.txt: проект CMake для SpaceIntruders; включите исходный код и определения,
-# укажите здесь логику для конкретного проекта.
-#
 cmake_minimum_required (VERSION 3.8)
 
-# Добавьте источник в исполняемый файл этого проекта.
+add_definitions(-DPROJECT_ROOT_FOLDER=${PROJECT_SOURCE_DIR})
+
 add_library(ImaginaryEngine STATIC src/engine.cpp src/engine.hpp src/window.hpp 
 			src/eventManager.hpp src/eventManager.cpp src/render.hpp src/render.cpp 
 			src/GL/GLRender.hpp src/GL/GLRender.cpp src/SDL/SDLWindow.hpp 
@@ -21,8 +19,9 @@ add_library(ImaginaryEngine STATIC src/engine.cpp src/engine.hpp src/window.hpp
 			src/utilities/keycodes.hpp src/vertexData.hpp src/scheduleManager.hpp 
 			src/scheduleManager.cpp src/actionManager.hpp src/actionManager.cpp 
 			src/physicalSprite.cpp src/physicalSprite.hpp src/vertexDataHelper.hpp  
-			src/frameBuffer.hpp src/frameBuffer.cpp src/GL/GLFrameBuffer.hpp 
-			src/GL/GLFrameBuffer.cpp src/GL/GLHeaders.hpp src/utilities/general_functions.hpp)
+			src/frameBuffer.hpp src/frameBuffer.cpp src/utilities/general_functions.hpp 
+			src/GL/GLFrameBuffer.hpp src/GL/GLFrameBuffer.cpp src/GL/GLHeaders.hpp 
+			src/fileManager.hpp src/fileManager.cpp)
 
 set_target_properties(ImaginaryEngine PROPERTIES
     CXX_STANDARD 17
@@ -50,11 +49,18 @@ endif()
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/imgui)
 set(IMGUI_LIBRARY imgui)
 
+if(NOT ANDROID)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/box2d)
 set(BOX2D_LIBRARY box2d)
+endif()
 
+if(NOT ANDROID)
 target_link_libraries(ImaginaryEngine PUBLIC
 		${SDL2MAIN_LIBRARY} ${SDL2_LIBRARY} ${GLEW_LIBRARY} ${IMGUI_LIBRARY} ${BOX2D_LIBRARY})
+else()
+target_link_libraries(ImaginaryEngine PUBLIC
+		${SDL2MAIN_LIBRARY} ${SDL2_LIBRARY} ${GLEW_LIBRARY} ${IMGUI_LIBRARY})
+endif()
 
 target_include_directories(ImaginaryEngine 
 		PUBLIC
@@ -63,8 +69,9 @@ target_include_directories(ImaginaryEngine
 		PRIVATE
 			${CMAKE_CURRENT_SOURCE_DIR}/libs/SDL2/include
 			${CMAKE_CURRENT_SOURCE_DIR}/libs/glew/include
+if(NOT ANDROID)
 			${CMAKE_CURRENT_SOURCE_DIR}/libs/box2d/include
+endif()
 			${CMAKE_CURRENT_SOURCE_DIR}/libs/stbi)
 
 set(SYSTEM_LIBS -mwindows ${GLEW_LIBRARY} ${OPENGL_LIBRARIES})
-# TODO: Добавьте тесты и целевые объекты, если это необходимо.

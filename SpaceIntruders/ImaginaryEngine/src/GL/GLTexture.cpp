@@ -2,7 +2,7 @@
 #include <GL/GLHeaders.hpp>
 #include <bitmap.hpp>
 
-GLTexture::GLTexture(Bitmap bitmap)
+GLTexture::GLTexture(Bitmap bitmap, bool is_repeat)
     : Texture(bitmap.get_size())
 {
     glGenTextures(1, &_ID);
@@ -14,13 +14,13 @@ GLTexture::GLTexture(Bitmap bitmap)
     {
         switch (ch)
         {
-        #if GLES20
+#if GLES20
         case 1: return GL_R8_EXT;
         case 2: return GL_RG_EXT;
-        #elif  GL33
+#elif  GL33
         case 1: return GL_R8;
         case 2: return GL_RG;
-        #endif
+#endif
         case 3: return GL_RGB;
         case 4: return GL_RGBA;
         default: return 0;
@@ -47,9 +47,18 @@ GLTexture::GLTexture(Bitmap bitmap)
     glTexImage2D(GL_TEXTURE_2D, 0, internal_format, (GLsizei)bitmap.get_size().x, (GLsizei)bitmap.get_size().y, 0,
                  format, GL_UNSIGNED_BYTE, bitmap.get_image().size() == 0 ? nullptr : bitmap.get_image().data());
 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    if (is_repeat)
+    {
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    }
+    else 
+    {
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    }
 
     if (bitmap.get_image().size() != 0)
     {

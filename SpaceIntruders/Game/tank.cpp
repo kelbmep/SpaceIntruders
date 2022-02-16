@@ -8,11 +8,11 @@
 
 Tank::Tank(Engine& engine) : Node(engine)
 {
-    _shot = _engine.get_audio_manager().create_sound("../../../../SpaceIntruders/ImaginaryEngine/res/Shot.wav", false, 0.6f);
-    _movement = _engine.get_audio_manager().create_sound("../../../../SpaceIntruders/ImaginaryEngine/res/Movement.wav", true, 0.7f);
+    _shot = _engine.get_audio_manager().create_sound("Shot.wav", false, 0.6f);
+    _movement = _engine.get_audio_manager().create_sound("Movement.wav", true, 0.7f);
 
-    _body = std::make_shared<Sprite>(_engine, "../../../../SpaceIntruders/ImaginaryEngine/res/tank_body.png");
-    _tower = std::make_shared<Sprite>(_engine, "../../../../SpaceIntruders/ImaginaryEngine/res/tank_tower.png");
+    _body = std::make_shared<Sprite>(_engine, "tank_body.png");
+    _tower = std::make_shared<Sprite>(_engine, "tank_tower.png");
     this->set_position(glm::vec2(_engine.get_window_width() * 0.5f,
                                  _engine.get_window_height() * 0.5f));
 
@@ -26,6 +26,7 @@ Tank::Tank(Engine& engine) : Node(engine)
     this->add_node(_body);
     _body->add_node(_tower);
 
+    //this->schedule_update();
     _prev_time = std::chrono::high_resolution_clock::now();
 }
 
@@ -81,7 +82,7 @@ void Tank::visitSelf()
     std::chrono::duration<float> delta = now - _prev_time;
     _prev_time = now;
 
-    if (_isA) 
+    if (_isA)
     {
         _tower->set_rotation(_tower->get_rotation() - 0.3f);
     }

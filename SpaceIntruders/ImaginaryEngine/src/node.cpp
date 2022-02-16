@@ -5,6 +5,7 @@
 
 Node::Node(const Engine& engine)
 	: _engine(engine)
+	, _id(utils::gen_unique_object_ID())
 {}
 
 void Node::add_node(std::shared_ptr<Node> n)
@@ -186,6 +187,29 @@ void Node::set_size(const glm::vec2 &size)
 	_content_size = size;
 }
 
+void Node::schedule_update()
+{
+	_engine.get_schedule_manager().schedule_update([this](fseconds delta)
+		{
+			this->update(delta);
+		}, _id);
+}
+
+void Node::unschedule_update()
+{
+	_engine.get_schedule_manager().stop(_id);
+}
+
+uint32_t Node::get_render_mask() const
+{
+	return _render_mask;
+}
+
+void Node::set_render_mask(uint32_t render_mask)
+{
+	_render_mask = render_mask;
+}
+
 std::vector<std::shared_ptr<Node>> Node::get_children()
 {
 	return _nodes;
@@ -203,6 +227,7 @@ void Node::set_zOrder(int z)
 
 Node::~Node()
 {
+	//this->unschedule_update();
 	for (auto &n : _nodes)
 	{
 		n->_parent = nullptr;

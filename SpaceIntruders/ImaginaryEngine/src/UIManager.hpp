@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <render.hpp>
+#include <imgui.h>
 
 class Engine;
 class EventManager;
@@ -16,6 +17,20 @@ public:
 };
 
 namespace Menu{
+	class Text : public MenuItem
+	{
+	public:
+		explicit Text(std::string text)
+			: _text(std::move(text))
+		{}
+
+		void set_text(std::string);
+
+		void visit() override;
+	private:
+		std::string _text;
+	};
+
 	class Button : public MenuItem
 	{
 	public:
@@ -44,18 +59,32 @@ namespace Menu{
 		int _min, _max;
 		int* _val;
 	};
+
+	class ProgressBar : public MenuItem
+	{
+	public:
+		explicit ProgressBar(float val)
+			: _val(val)
+		{}
+		void set_progress(float);
+
+		void visit() override;
+	private:
+		float _val;
+	};
 }
 
 class BeginItem : public MenuItem
 {
 public:
-	explicit BeginItem(std::string text)
-		: _text(std::move(text))
+	explicit BeginItem(std::string text, ImGuiWindowFlags flags = 0)
+		: _text(std::move(text)), _flags(flags)
 	{}
 
 	void visit() override;
 private:
 	std::string _text;
+	ImGuiWindowFlags _flags = 0;
 };
 
 class EndItem : public MenuItem
@@ -73,19 +102,15 @@ public:
 
 	void handle_event(MouseEvent) override;
 	void handle_event(MouseMoveEvent) override;
-	void handle_event(KeyEvent) override;
 	void handle_event(TextInputEvent) override;
 
 	void add_menu_item(std::shared_ptr<MenuItem>);
 	void remove_menu_item(const std::shared_ptr<MenuItem>&);
-	
-	bool get_show_main_menu();
 private:
 	const Engine& _engine;
 	Render::Command _command;
 
 	bool _show_demo_window = true;
-	bool _show_main_menu = false;
 
 	bool _isLeft = false;
 	bool _isRight = false;

@@ -3,6 +3,7 @@
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
 #define GLES20 1
+#define GL33 0
 #else
 #define GL_SILENCE_DEPRECATION
 #include <GL/glew.h>
@@ -11,5 +12,6 @@
 #define GL_DO_NOT_WARN_IF_MULTI_GL_VERSION_HEADERS_INCLUDED
 //#include <opengl/gl3.h>
 //#include <opengl/gl3ext.h>
+#define GLES20 0
 #define GL33 1
 #endif

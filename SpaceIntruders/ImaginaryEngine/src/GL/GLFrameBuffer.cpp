@@ -8,7 +8,7 @@ GLFrameBuffer::GLFrameBuffer(const Engine& engine, glm::vec2 size)
     GLint curFBO;
 
 #if GLES20
-    glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING_NV, &curFBO);
+    glGetIntegerv(GL_FRAMEBUFFER_BINDING, &curFBO);
 #elif GL33
     glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &curFBO);
 #endif
@@ -16,7 +16,7 @@ GLFrameBuffer::GLFrameBuffer(const Engine& engine, glm::vec2 size)
     glGenFramebuffers(1, &_fbo);
     glBindFramebuffer(GL_FRAMEBUFFER, _fbo);
 
-    _texture = engine.get_render().create_texture(Bitmap{ 4, std::vector<unsigned char>(NULL), size });
+    _texture = engine.get_render().create_texture(Bitmap{ 4, std::vector<unsigned char>(NULL), size }, false);
     auto glTexture = std::static_pointer_cast<GLTexture>(_texture);
 
     glTexture->active();
@@ -35,7 +35,7 @@ void GLFrameBuffer::draw_to_frame_buffer(std::function<void(void)> callback)
     GLint curFBO;
 
 #if GLES20
-    glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING_NV, &curFBO);
+    glGetIntegerv(GL_FRAMEBUFFER_BINDING, &curFBO);
 #elif GL33
     glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &curFBO);
 #endif

@@ -4,10 +4,12 @@
 #include <vector>
 #include <glm/glm.hpp>
 
+class Engine;
+
 class Bitmap
 {
 public:
-    explicit Bitmap(std::string);
+    Bitmap(const Engine&, std::string);
     explicit Bitmap(int, std::vector<unsigned char>, glm::vec2);
 
     const std::vector<unsigned char>& get_image() const;

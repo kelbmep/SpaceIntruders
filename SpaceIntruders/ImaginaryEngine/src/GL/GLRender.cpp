@@ -1,5 +1,3 @@
-#define GLEW_STATIC
-
 #include <GL/GLRender.hpp>
 #include <string>
 #include <iostream>
@@ -11,8 +9,7 @@
 #include <GL/GLFrameBuffer.hpp>
 #include <GL/GLParticleProgram.hpp>
 #include <GL/GLHeaders.hpp>
-
-//#include "ScheduleManager.hpp"
+#include <scheduleManager.hpp>
 
 void check_errors(std::string file, int line)
 {
@@ -61,7 +58,9 @@ GLRender::GLRender(const Engine& engine, SDL_Window* window)
 	//glGenTextures(1, &texture);
 	//glBindTexture(GL_TEXTURE_2D, texture);
 
+#if GL33
 	glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
+#endif
 }
 
 void GLRender::init()
@@ -72,7 +71,7 @@ void GLRender::draw()
 {
 	glDisable(GL_CULL_FACE);
 	glDisable(GL_SCISSOR_TEST);
-	glClearColor(1.0f, 0.0f, 1.0f, 1.0f);
+	glClearColor(0.0f, 0.62f, 0.875f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 	glEnable(GL_SCISSOR_TEST);
 
@@ -129,15 +128,15 @@ std::shared_ptr<ShaderProgram> GLRender::create_program(std::string name) const
 {
 	if (name == "draw")
 	{
-		return std::make_shared<GLSpriteProgram>();
+		return std::make_shared<GLSpriteProgram>(_engine);
 	}
 
 	return nullptr;
 }
 
-std::shared_ptr<Texture> GLRender::create_texture(Bitmap bitmap) const
+std::shared_ptr<Texture> GLRender::create_texture(Bitmap bitmap, bool is_repeat) const
 {
-	return std::make_shared<GLTexture>(std::move(bitmap));
+	return std::make_shared<GLTexture>(std::move(bitmap), is_repeat);
 }
 
 glm::vec2 GLRender::get_render_resolution() const

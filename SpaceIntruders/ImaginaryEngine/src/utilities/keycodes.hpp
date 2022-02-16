@@ -75,7 +75,7 @@ enum class KeyCode
 	INSERT = 73,
 	HOME = 74,
 	PAGEUP = 75,
-	DELETE = 76,
+	DEL = 76,
 	END = 77,
 	PAGEDOWN = 78,
 	RIGHT = 79,

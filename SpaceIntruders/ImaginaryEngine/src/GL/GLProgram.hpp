@@ -5,12 +5,16 @@
 #include <string>
 #include <glm/glm.hpp>
 
+class Engine;
+
 class GLProgram : public ShaderProgram
 {
 public:
-    //GLProgram(std::initializer_list<const char*>, std::string, std::string);
-    GLProgram(std::string, std::string);
+    GLProgram(std::initializer_list<const char*>, std::string, std::string);
+    //GLProgram(std::string, std::string);
     ~GLProgram() override;
+
+    std::string read_from_file(std::string);
 
     std::shared_ptr<TextureUniform> create_texture_uniform(std::string) override;
     std::shared_ptr<Mat3Uniform> create_mat3_uniform(std::string) override;

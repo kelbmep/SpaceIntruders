@@ -31,7 +31,7 @@ public:
 	std::shared_ptr<ParticleBuffer> create_particle_buffer(std::vector<ParticleBuffer::ParticleData>) const override;
 	std::shared_ptr<ParticleBuffer> create_particle_buffer(size_t) const override;
 	
-	std::shared_ptr<Texture> create_texture(Bitmap) const override;
+	std::shared_ptr<Texture> create_texture(Bitmap, bool) const override;
 
 	glm::vec2 get_render_resolution() const override; 
 private:

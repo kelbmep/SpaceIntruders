@@ -37,7 +37,7 @@ std::shared_ptr<VertexBuffer> SDLRender::create_vertex_buffer(const VertexData&)
 	return nullptr;
 }
 
-std::shared_ptr<Texture> SDLRender::create_texture(Bitmap bitmap) const
+std::shared_ptr<Texture> SDLRender::create_texture(Bitmap bitmap, bool is_repeat) const
 {
 	return nullptr;
 }

@@ -10,7 +10,9 @@ class Render;
 class Node;
 class AudioManager;
 class UIManager;
+class FileManager;
 class Playlist;
+class ScheduleManager;
 
 class Engine : public EventManager::Delegate 
 {
@@ -29,7 +31,9 @@ public:
     const Window& get_window() const;
     const EventManager& get_event_manager() const;
     const AudioManager& get_audio_manager() const;
-	
+    const ScheduleManager& get_schedule_manager() const;
+    const FileManager& get_file_manager() const;
+
     std::shared_ptr<UIManager> get_ui_manager() const;
     std::shared_ptr<Playlist> get_playlist() const;
     std::shared_ptr<Node> get_scene() const;
@@ -43,6 +47,9 @@ public:
 
 	size_t get_window_width() const;
     size_t get_window_height() const;
+
+    bool is_disabled() const;
+    void enable();
 private:
     b2World* _m_world;
 
@@ -50,13 +57,16 @@ private:
     std::unique_ptr<Window> _window;
 	std::unique_ptr<EventManager> _event_manager;
 	std::unique_ptr<AudioManager> _audio_manager;
-    
+    std::unique_ptr<ScheduleManager> _schedule_manager; 
+    std::unique_ptr<FileManager> _file_manager;
+
     std::shared_ptr<UIManager> _ui;
     std::shared_ptr<Playlist> _playlist;
     std::shared_ptr<Node> _scene;
     std::shared_ptr<Node> _camera;
 
     mutable glm::vec2 _virtual_resolution;
-
     bool _is_active = false;
+
+    bool _is_disabled = true;
 };

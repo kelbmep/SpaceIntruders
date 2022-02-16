@@ -50,7 +50,7 @@ public:
     virtual std::shared_ptr<ParticleBuffer> create_particle_buffer(size_t) const = 0;
     
     virtual std::shared_ptr<ShaderProgram> create_program(std::string) const = 0;
-    virtual std::shared_ptr<Texture> create_texture(Bitmap) const = 0;
+    virtual std::shared_ptr<Texture> create_texture(Bitmap, bool) const = 0;
     
     mutable glm::vec3 distort_coord;
     

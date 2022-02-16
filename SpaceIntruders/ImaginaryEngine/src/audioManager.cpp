@@ -1,7 +1,9 @@
 #include <audioManager.hpp>
+#include <fileManager.hpp>
+#include <engine.hpp>
 #include <stdexcept>
 
-AudioManager::AudioManager()
+AudioManager::AudioManager(const Engine& engine) : _engine(engine)
 {
 	SDL_Init(SDL_INIT_EVERYTHING);
 	_audio_spec_from_file.freq = 44100;
@@ -64,7 +66,7 @@ void AudioManager::audio_callback(void* userdata, uint8_t* stream, int len)
 
 std::shared_ptr<Sound> AudioManager::create_sound(std::string file_name, bool is_loop, float volume) const
 {
-	auto sound = std::make_shared<Sound>(file_name, is_loop, volume);
+	auto sound = std::make_shared<Sound>(_engine.get_file_manager().resource_location(file_name), is_loop, volume);
 	_buffers.push_back(sound);
 	return sound;
 }

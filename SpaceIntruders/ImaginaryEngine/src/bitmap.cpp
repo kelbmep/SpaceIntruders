@@ -1,12 +1,15 @@
 #define STB_IMAGE_IMPLEMENTATION
-#include <stdexcept>
+
+#include <bitmap.hpp>
+#include <engine.hpp>
+#include <fileManager.hpp>
 #include <SDL.h>
 #include <stbi/stb_image.h>
-#include <bitmap.hpp>
+#include <stdexcept>
 
-Bitmap::Bitmap(std::string filepath)
+Bitmap::Bitmap(const Engine& engine, std::string filepath)
 {
-    SDL_RWops* file = SDL_RWFromFile(filepath.data(), "rb");
+    SDL_RWops* file = SDL_RWFromFile(engine.get_file_manager().resource_location(filepath).c_str(), "rb");
 
     if (file == nullptr)
     {
@@ -25,7 +28,7 @@ Bitmap::Bitmap(std::string filepath)
 
     if (img == nullptr)
     {
-        throw std::runtime_error("Unsupported file format: " + std::string{ filepath });
+        throw std::runtime_error("Unsupported file format: " + filepath);
     }
 
     auto imgSize = width * height * _color_channels;

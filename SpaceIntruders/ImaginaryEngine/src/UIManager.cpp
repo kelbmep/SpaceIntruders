@@ -1,7 +1,7 @@
 #include <UIManager.hpp>
 #include <shaderProgram.hpp>
 #include <bitmap.hpp>
-#include <imgui.h>
+#include <scheduleManager.hpp>
 
 UIManager::UIManager(const Engine& engine) : _engine{ engine }
 {
@@ -21,7 +21,7 @@ UIManager::UIManager(const Engine& engine) : _engine{ engine }
 	io.KeyMap[ImGuiKey_Home] = static_cast<size_t>(KeyCode::HOME);
 	io.KeyMap[ImGuiKey_End] = static_cast<size_t>(KeyCode::END);
 	io.KeyMap[ImGuiKey_Insert] = static_cast<size_t>(KeyCode::INSERT);
-	io.KeyMap[ImGuiKey_Delete] = static_cast<size_t>(KeyCode::DELETE);
+	io.KeyMap[ImGuiKey_Delete] = static_cast<size_t>(KeyCode::DEL);
 	io.KeyMap[ImGuiKey_Backspace] = static_cast<size_t>(KeyCode::BACKSPACE);
 	io.KeyMap[ImGuiKey_Space] = static_cast<size_t>(KeyCode::SPACE);
 	io.KeyMap[ImGuiKey_Enter] = static_cast<size_t>(KeyCode::RETURN);
@@ -45,7 +45,7 @@ UIManager::UIManager(const Engine& engine) : _engine{ engine }
 	_command.program = _engine.get_render().create_program("draw");
 
 	_texture_uniform = _command.program->create_texture_uniform("uTexture");
-	_texture_uniform->texture = _engine.get_render().create_texture(std::move(bitmap));
+	_texture_uniform->texture = _engine.get_render().create_texture(std::move(bitmap), false);
 
 	_screen_size_uniform = _command.program->create_vec2_uniform("uScreenSize");
 	_transform_uniform = _command.program->create_mat3_uniform("uTransform");
@@ -55,6 +55,9 @@ UIManager::UIManager(const Engine& engine) : _engine{ engine }
 	_command.uniforms.push_back(_texture_uniform);
 
 	_engine.get_event_manager().add_delegate(this);
+
+	ImGui::PushStyleColor(ImGuiCol_PlotHistogram, { 0.86f, 0.2f, 0.18f, 1.0f });
+	ImGui::PushStyleColor(ImGuiCol_Text, { 0.0f, 1.0f, 0.0f, 1.0f });
 }
 
 void UIManager::handle_event(MouseEvent e)
@@ -90,14 +93,6 @@ void UIManager::handle_event(MouseMoveEvent e)
 	_mouse_pos.y = (float)e.y;
 }
 
-void UIManager::handle_event(KeyEvent e)
-{
-	if (e.key == KeyCode::ESCAPE && e.type == KeyType::KeyUp)
-	{
-		_show_main_menu = !_show_main_menu;
-	}
-}
-
 void UIManager::visit()
 {
 	ImGuiIO& io = ImGui::GetIO();
@@ -109,16 +104,17 @@ void UIManager::visit()
 	io.MouseDown[1] = _isRight;
 	io.MouseDown[2] = _isMiddle;
 
+	io.DeltaTime = _engine.get_schedule_manager().get_delta().count();
+
 	ImGui::NewFrame();
 
 	//ImGui::ShowDemoWindow(&_show_demo_window);
-	
-	if (_show_main_menu)
+	ImGui::SetNextWindowPos({ 10.0f, 10.0f });
+	ImGui::SetNextWindowSize({ 150.0f, 80.0f });
+
+	for (auto& menu_item : _menu_items)
 	{
-		for (auto& menu_item : _menu_items)
-		{
-			menu_item->visit();
-		}
+		menu_item->visit();
 	}
 
 	ImGui::Render();
@@ -185,9 +181,14 @@ void UIManager::remove_menu_item(const std::shared_ptr<MenuItem>& menu_item)
 	_menu_items.erase(it);
 }
 
-bool UIManager::get_show_main_menu()
+void Menu::Text::set_text(std::string text)
 {
-	return _show_main_menu;
+	_text = text;
+}
+
+void Menu::Text::visit()
+{
+	ImGui::Text(_text.c_str());
 }
 
 void Menu::Button::visit()
@@ -213,9 +214,19 @@ void Menu::Slider::visit()
 	ImGui::SliderInt(_text.c_str(), _val, _min, _max);
 }
 
+void Menu::ProgressBar::visit()
+{
+	ImGui::ProgressBar(_val);
+}
+
+void Menu::ProgressBar::set_progress(float val)
+{
+	_val = val;
+}
+
 void BeginItem::visit()
 {
-	ImGui::Begin(_text.c_str());
+	ImGui::Begin(_text.c_str(), NULL, _flags);
 }
 
 void EndItem::visit()

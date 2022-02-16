@@ -4,6 +4,7 @@
 #include <glm/glm.hpp>
 #include <vector>
 #include <optional>
+#include <scheduleManager.hpp>
 
 class Engine;
 
@@ -40,6 +41,14 @@ public:
 	const glm::vec2& get_size() const;
 	void set_size(const glm::vec2&);
 
+	void schedule_update();
+	void unschedule_update();
+
+	virtual void update(fseconds) {}
+
+	uint32_t get_render_mask() const;
+	void set_render_mask(uint32_t);
+
 	glm::mat3 get_transform();
 	std::vector<std::shared_ptr<Node>> get_children();
 
@@ -63,7 +72,7 @@ protected:
 	virtual void visitSelf() {};
 	
 	const Engine& _engine;
-
+	size_t _id;
 	std::uint32_t _render_mask{ 0x0 };
 
 	glm::vec2 _content_size = glm::vec2(0.0f);

@@ -1,14 +1,21 @@
 ﻿#include <engine.hpp>
 #include <../../Game/tank.hpp>
-#include <tiny_obj_loader.cc>
 #include <../../Game/bullet.hpp>
 #include <button.hpp>
 #include <playlist.hpp>
-#include <UIManager.hpp>
 #include <physicalSprite.hpp>
+#include <fileManager.hpp>
+#include <scheduleManager.hpp>
+#include <../../Game/car.hpp>
+#include <../../Game/mainMenu.hpp>
+#include <../../Game/coin.hpp>
+#include <../../Game/fuel.hpp>
+#include <../../Game/userdata.hpp>
+#include <../../Game/UI.hpp>
+#include <../../Game/ground.hpp>
 
-const auto SCREEN_WIDTH = 1024;
-const auto SCREEN_HEIGHT = 768;
+const auto SCREEN_WIDTH = 1280;
+const auto SCREEN_HEIGHT = 720;
 
 int main(int argc, char* argv[])
 {
@@ -20,158 +27,102 @@ int main(int argc, char* argv[])
 		mode = std::stoi(argv[1]);
 	}
 
-	engine.init("Mace Windows", SCREEN_WIDTH, SCREEN_HEIGHT, mode);
+	engine.get_file_manager().set_find_paths({ "SpaceIntruders/ImaginaryEngine/res/" });
 
+	engine.init("Bumpy Road Racing v0.1", SCREEN_WIDTH, SCREEN_HEIGHT, mode);
+
+	engine.set_virtual_resolution(glm::vec2{ 1920.0f, 1080.0f });
+
+	auto start_screen = std::make_shared<Sprite>(engine, "start screen.jpg");
+	start_screen->set_scale(glm::vec2(engine.get_virtual_resolution().x / SCREEN_WIDTH, engine.get_virtual_resolution().y / SCREEN_HEIGHT));
+
+	auto play_game = std::make_shared<Button>(engine, "play_text.png", engine.get_virtual_resolution().x / 2.0f, engine.get_virtual_resolution().y / 2.0f);
+	auto exit_game = std::make_shared<Button>(engine, "exit_text.png", engine.get_virtual_resolution().x / 2.0f, engine.get_virtual_resolution().y * 4.0f / 5.0f, false, 0.9f);
+
+	engine.get_scene()->add_node(start_screen);
+	engine.get_camera()->add_node(play_game);
+	engine.get_camera()->add_node(exit_game);
+	engine.get_scene()->add_node(engine.get_camera());
+
+	while (engine.is_disabled())
 	{
-		auto box_sprite = std::make_shared<Sprite>(engine, "../../../../SpaceIntruders/ImaginaryEngine/res/box.png");
-		box_sprite->set_scale(20.0f / box_sprite->get_size());
-
-		b2PolygonShape box;
-		box.SetAsBox(10.0f, 10.0f);
-
-		b2Body* body = NULL;
-		b2BodyDef bd;
-		bd.type = b2_dynamicBody;
-
-		bd.position.Set(5.0f, 115.0f);
-		body = (&engine.get_world())->CreateBody(&bd);
-		body->CreateFixture(&box, 0.5f);
-
-		body->SetLinearVelocity(b2Vec2(200.0f, 200.0f));
-
-		auto physical_box = std::make_shared<PhysicalSprite>(engine, body, box_sprite);
-
-		b2PolygonShape box2;
-		box2.SetAsBox(50.0f, 50.0f);
-
-		b2Body* body2 = NULL;
-		b2BodyDef bd2;
-		bd2.type = b2_dynamicBody;
-
-		bd2.position.Set(300.0f, 300.0f);
-		body2 = (&engine.get_world())->CreateBody(&bd2);
-		body2->CreateFixture(&box2, 0.5f);
-
-		body2->SetLinearVelocity(b2Vec2(0.0f, 0.0f));
-
-		auto box_sprite2 = std::make_shared<Sprite>(engine, "../../../../SpaceIntruders/ImaginaryEngine/res/box.png");
-		box_sprite2->set_scale(100.0f / box_sprite2->get_size());
-
-		auto physical_box2 = std::make_shared<PhysicalSprite>(engine, body2, box_sprite2);
-
-		b2Body* body3 = NULL;
-		b2BodyDef bd3;
-		bd3.type = b2_dynamicBody;
-
-		bd3.position.Set(600.0f, 485.0f);
-		body3 = (&engine.get_world())->CreateBody(&bd3);
-		body3->CreateFixture(&box, 0.5f);
-
-		body3->SetLinearVelocity(b2Vec2(-200.0f, -200.0f));
-
-		auto box_sprite3 = std::make_shared<Sprite>(engine, "../../../../SpaceIntruders/ImaginaryEngine/res/box.png");
-		box_sprite3->set_scale(20.0f / box_sprite3->get_size());
-
-		auto physical_box3 = std::make_shared<PhysicalSprite>(engine, body3, box_sprite3);
-
-		engine.get_scene()->add_node(physical_box);
-		engine.get_scene()->add_node(physical_box2);
-		engine.get_scene()->add_node(physical_box3);
+		engine.update();
+		if (play_game->get_state())
+		{
+			engine.enable();
+			engine.get_camera()->remove_node(start_screen);
+			engine.get_camera()->remove_node(play_game);
+			engine.get_camera()->remove_node(exit_game);
+		}
+		else if (exit_game->get_state())
+		{
+			return 0;
+		}
 	}
 
-	auto tank = std::make_shared<Tank>(engine);
+	UserData user_data(engine);
 
-	engine.get_event_manager().add_delegate(tank.get());
-	engine.get_scene()->add_node(tank);
+	float ground_level = SCREEN_HEIGHT - 100.0f;
+	auto ground = std::make_unique<Ground>(engine, ground_level);
 
-	auto pause_button = std::make_shared<Button>(engine, "../../../../SpaceIntruders/ImaginaryEngine/res/pause.png");
-	auto play_button = std::make_shared<Button>(engine, "../../../../SpaceIntruders/ImaginaryEngine/res/play.png");
+	auto car = std::make_shared<Car>(engine, user_data, 20.0f, ground_level - 8.0f);
+
+	engine.get_event_manager().add_delegate(car.get());
+	engine.get_scene()->add_node(car);
+
+	engine.get_scene()->add_node(std::make_shared<Fuel>(engine, user_data, 340.0f, ground_level - 1.5f));
+
+	float x1 = SCREEN_WIDTH / 2 - 150.0f;
+
+	for (int j = 0; j < 4; j++)
+	{
+		for (int i = 0; i < 6; i++)
+		{
+			engine.get_scene()->add_node(std::make_shared<Coin>(engine, user_data, x1 + i * 3, ground_level - 1.5f));
+		}
+		x1 += 158.0f;
+	}
+
+	auto pause_button = std::make_shared<Button>(engine, "pause.png", engine.get_virtual_resolution().x * 0.99f, engine.get_virtual_resolution().y * 0.01f, true, 0.2f);
+	auto play_button = std::make_shared<Button>(engine, "play.png", engine.get_virtual_resolution().x * 0.99f, engine.get_virtual_resolution().y * 0.01f, true, 0.2f);
 	
-	engine.get_scene()->add_node(play_button);
+	engine.get_camera()->add_node(play_button);
 
-	engine.get_playlist()->add_track("../../../../SpaceIntruders/ImaginaryEngine/res/track1.wav");
-	engine.get_playlist()->add_track("../../../../SpaceIntruders/ImaginaryEngine/res/track2.wav");
-	engine.get_playlist()->add_track("../../../../SpaceIntruders/ImaginaryEngine/res/track3.wav");
+	auto main_menu = std::make_unique<MainMenu>(engine, user_data);
+
+	engine.get_playlist()->add_track("track1.wav");
+	engine.get_playlist()->add_track("track2.wav");
+	engine.get_playlist()->add_track("track3.wav");
 
 	engine.get_event_manager().add_delegate(engine.get_playlist().get());
 
-	int volume = 60;
-	
-	auto main_menu = std::make_shared<BeginItem>("Main menu");
-	auto play = std::make_shared<Menu::Button>("Play");
-	auto settings = std::make_shared<Menu::Button>("Settings");
-	auto quit = std::make_shared<Menu::Button>("Quit");
-	auto settings_menu = std::make_shared<BeginItem>("Settings");
-	auto slider = std::make_shared<Menu::Slider>("Volume", &volume, 0, 100);
-	auto back = std::make_shared<Menu::Button>("<-- Back");
-	auto end_menu = std::make_shared<EndItem>();
-	
-	engine.get_ui_manager()->add_menu_item(main_menu);
-	engine.get_ui_manager()->add_menu_item(play);
-	engine.get_ui_manager()->add_menu_item(settings);
-	engine.get_ui_manager()->add_menu_item(quit);
-	engine.get_ui_manager()->add_menu_item(end_menu);
-
 	engine.get_playlist()->play();
-	bool is_play = false, is_settings = false;
+	bool is_play = false;
 	while (engine.is_active()) 
 	{
 		if (!pause_button->get_state() && !is_play)
 		{
-			engine.get_scene()->remove_node(play_button);
-			engine.get_scene()->add_node(pause_button);
+			engine.get_camera()->remove_node(play_button);
+			engine.get_camera()->add_node(pause_button);
 			is_play = !is_play;
 			engine.get_playlist()->play();
 		}
 		else if (pause_button->get_state() && is_play)
 		{
-			engine.get_scene()->add_node(play_button, -1);
-			engine.get_scene()->remove_node(pause_button);
+			engine.get_camera()->add_node(play_button);
+			engine.get_camera()->remove_node(pause_button);
 			is_play = !is_play;
 			engine.get_playlist()->pause();
 		}
 
-		if ((!engine.get_ui_manager()->get_show_main_menu() && is_settings) || back->get_is_clicked())
-		{
-			engine.get_ui_manager()->remove_menu_item(settings_menu);
-			engine.get_ui_manager()->remove_menu_item(slider);
-			engine.get_ui_manager()->remove_menu_item(back);
-			engine.get_ui_manager()->remove_menu_item(end_menu);
-			engine.get_ui_manager()->add_menu_item(main_menu);
-			engine.get_ui_manager()->add_menu_item(play);
-			engine.get_ui_manager()->add_menu_item(settings);
-			engine.get_ui_manager()->add_menu_item(quit);
-			engine.get_ui_manager()->add_menu_item(end_menu);
-			back->set_is_clicked(false);
-			is_settings = false;
-		}
-
-		if (quit->get_is_clicked())
-		{
-			engine.get_event_manager().invoke_event(QuitEvent{});
-		}
-		else if (play->get_is_clicked())
-		{
-			engine.get_event_manager().invoke_event(KeyEvent{ KeyCode::ESCAPE, KeyType::KeyUp });
-			play->set_is_clicked(false);
-		}
-		else if (settings->get_is_clicked())
-		{
-			engine.get_ui_manager()->remove_menu_item(main_menu);
-			engine.get_ui_manager()->remove_menu_item(play);
-			engine.get_ui_manager()->remove_menu_item(settings);
-			engine.get_ui_manager()->remove_menu_item(quit);
-			engine.get_ui_manager()->remove_menu_item(end_menu);
-			engine.get_ui_manager()->add_menu_item(settings_menu);
-			engine.get_ui_manager()->add_menu_item(slider);
-			engine.get_ui_manager()->add_menu_item(back);
-			engine.get_ui_manager()->add_menu_item(end_menu);
-			settings->set_is_clicked(false);
-			is_settings = true;
-		}
+		auto delta = glm::vec2(car->get_car_body()->get_position().x - engine.get_camera()->get_position().x + 20.0f, 
+							   car->get_car_body()->get_position().y - engine.get_camera()->get_position().y);
+		engine.get_camera()->set_position(engine.get_camera()->get_position() + delta * 40.0f * engine.get_schedule_manager().get_delta().count());
+		engine.get_camera()->set_scale(glm::vec2(0.05f));
 
 		engine.update();
-		engine.get_playlist()->set_volume(volume);
+		main_menu->update();
+		user_data.update();
 	}
 	return 0;
 }

@@ -3,6 +3,7 @@
 #include <chrono>
 #include <vector>
 #include <functional>
+#include <utilities/general_functions.hpp>
 
 using fseconds = std::chrono::duration<float>;
 using namespace std::chrono_literals;

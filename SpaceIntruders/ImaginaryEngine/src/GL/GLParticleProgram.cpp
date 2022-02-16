@@ -77,7 +77,6 @@ void main()
 }
 
 GLParticleProgram::GLParticleProgram()
-    : GLProgram(vs_program, ps_program)
+    : GLProgram({"position", "velocity", "color", "phase"}, vs_program, ps_program)
 {
-
 }
